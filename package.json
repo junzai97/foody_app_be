@@ -1,0 +1,18 @@
+{
+  "name": "foody_app_be",
+  "version": "1.0.0",
+  "description": "A social media application for foodies",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "author": "Among Us 2.0",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
