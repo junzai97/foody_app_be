@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS storage (
     file_name VARCHAR(255),
     bucket VARCHAR(255),
     media_link VARCHAR(255),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id)
 );
@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS user (
     email VARCHAR(50),
     gender VARCHAR(50),
     biography TEXT,
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
     
     PRIMARY KEY (id),
     FOREIGN KEY (image_storage_id) REFERENCES storage(id)
@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS post (
     cleanliness INT(11),
     taste INT(11),
     price INT(11),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES user(id)
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS post_comment (
     post_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     comment VARCHAR(255),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (post_id) REFERENCES post(id),
@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS post_reaction (
     post_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     post_reaction VARCHAR(255),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (post_id) REFERENCES post(id),
@@ -70,8 +70,8 @@ CREATE TABLE IF NOT EXISTS post_storage (
     id BIGINT AUTO_INCREMENT,
     post_id BIGINT NOT NULL,
     storage_id BIGINT NOT NULL,
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (post_id) REFERENCES post(id),
@@ -82,8 +82,8 @@ CREATE TABLE IF NOT EXISTS preference (
     id BIGINT AUTO_INCREMENT,
     name VARCHAR(255),
     description VARCHAR(255),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
     PRIMARY KEY (id)
 );
 
@@ -91,8 +91,8 @@ CREATE TABLE IF NOT EXISTS user_preference (
     id BIGINT AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     preference_id BIGINT NOT NULL,
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES user(id) 
@@ -102,8 +102,8 @@ CREATE TABLE IF NOT EXISTS post_preference (
     id BIGINT AUTO_INCREMENT,
     post_id BIGINT NOT NULL,
     preference_id BIGINT NOT NULL,
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES post(id) 
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS following (
     id BIGINT AUTO_INCREMENT,
     follower_user_id BIGINT NOT NULL,
     following_user_id BIGINT NOT NULL,
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (follower_user_id) REFERENCES user(id),  
@@ -129,8 +129,8 @@ CREATE TABLE IF NOT EXISTS meat(
     startTime TIMESTAMP,
     endTime TIMESTAMP,
     status VARCHAR(255),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY(id),
     FOREIGN KEY(image_storage_id) REFERENCES storage(id)
@@ -142,8 +142,8 @@ CREATE TABLE IF NOT EXISTS meat_user (
     user_id BIGINT NOT NULL,
     role VARCHAR(255),
     status VARCHAR(255),
-    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastModifiedDate TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_date TIMESTAMP,
 
     PRIMARY KEY(id),
     FOREIGN KEY(meat_id) REFERENCES meat(id),
