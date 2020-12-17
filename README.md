@@ -24,18 +24,31 @@
 3. Register the route in `app.js`
 
 ### Create Query
-1. Create query in the **router file**
-2. In the router method, use `connection.query` to query the data from the database.  
-3. **Example:**
-```
-router.get('/users', (req,res) => {
-    connection.query('SELECT * FROM user WHERE username = ?', [req.body.username], (error, results, fields) => {
-        if(error){
-            throw error;
-        }
+1. Create MySQL query function in the **repository file**.
+2. Passed in and use the created query function in respective **router file** http methods.  
 
-        res.status(200).send(results)
-    })
+3. **Example:**  
+*users.repository.js*
+```
+function getUser(username){
+    return new Promise ((resolve, reject) => {
+        connection.query('SELECT * FROM user WHERE username = ?', [username], (error, results, fields) => {
+            error? reject(error):resolve(results);
+        }) 
+    }) 
+}
+```  
+  
+*users.router.js*  
+```
+router.get('/users', async (req,res) => {
+    try{
+        let results = await getUser(req.body.username);
+        res.status(200).send(results);
+    }catch (err){
+        console.log(err)
+        res.status(400).send(err);
+    }   
 })
 ```
 Kindly refer to https://www.npmjs.com/package/mysql for more info.
