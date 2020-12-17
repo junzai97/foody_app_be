@@ -4,7 +4,7 @@
 2. run `npm install` in the project root directory.
 3. Create a .env file in the project root directory.
 4. Add DB_USER and DB_PASS based on your MYSQL username and password respectively in your .env file  
--refer (https://www.npmjs.com/package/dotenv)  
+(Kindly refer to https://www.npmjs.com/package/dotenv)  
 
 ### Set up MySQL Server
 1. Download MYSQL Server from https://dev.mysql.com/downloads/ (Select `MySQL Installer for Windows` if using Window OS)
