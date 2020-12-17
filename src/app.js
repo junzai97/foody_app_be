@@ -1,6 +1,7 @@
 const express = require('express');
-const indexRouter = require('./routers/index')
-const userRouter = require('./routers/users')
+require('./db/mysql');
+const indexRouter = require('./routers/index');
+const userRouter = require('./routers/users');
 
 const app = express();
 
