@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS storage (
     media_link VARCHAR(255),
     createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     lastModifiedDate TIMESTAMP,
+
     PRIMARY KEY (id)
 );
 
@@ -97,6 +98,17 @@ CREATE TABLE IF NOT EXISTS user_preference (
     FOREIGN KEY (user_id) REFERENCES user(id) 
 );
 
+CREATE TABLE IF NOT EXISTS post_preference (
+    id BIGINT AUTO_INCREMENT,
+    post_id BIGINT NOT NULL,
+    preference_id BIGINT NOT NULL,
+    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    lastModifiedDate TIMESTAMP,
+
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES post(id) 
+);
+
 CREATE TABLE IF NOT EXISTS following (
     id BIGINT AUTO_INCREMENT,
     follower_user_id BIGINT NOT NULL,
@@ -113,6 +125,7 @@ CREATE TABLE IF NOT EXISTS meat(
     image_storage_id BIGINT NOT NULL,
     title VARCHAR(50),
     description LONGTEXT,
+    max_participant int(11),
     startTime TIMESTAMP,
     endTime TIMESTAMP,
     status VARCHAR(255),
