@@ -24,8 +24,8 @@
 3. Register the route in `app.js`
 
 ### Create Query
-1. Create query in the **repository file**.
-2. Passed in and use the query function in **router file** http methods.  
+1. Create MySQL query function in the **repository file**.
+2. Passed in and use the created query function in respective **router file** http methods.  
 
 3. **Example:**  
 *users.repository.js*
