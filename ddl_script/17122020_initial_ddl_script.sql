@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS post_preference (
     last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES post(id) 
+    FOREIGN KEY (post_id) REFERENCES post(id) 
 );
 
 CREATE TABLE IF NOT EXISTS following (
