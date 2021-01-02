@@ -1,5 +1,5 @@
-function AttachmentDTO(filename, base64String) {
-    this.filename = filename
+function AttachmentDTO(fileName, base64String) {
+    this.fileName = fileName
     this.base64String = base64String;
 }
 

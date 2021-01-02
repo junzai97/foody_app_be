@@ -8,7 +8,7 @@ const Storage = require("../entities/storage.entity");
 const BUCKET_NAME = "foodie-vlog-27dc6";
 
 function uploadFiles(attachmentDTO, attachmentType = AttachmentType.OTHERS) {
-  const path = `${attachmentType}/${attachmentDTO.filename}`;
+  const path = `${attachmentType}/${attachmentDTO.fileName}`;
   const file = bucket.file(path);
   const base64Content = getBase64Content(attachmentDTO.base64String);
   const bufferStream = new stream.PassThrough();
@@ -36,7 +36,7 @@ function uploadFiles(attachmentDTO, attachmentType = AttachmentType.OTHERS) {
           const publicUrl = signedUrls[0];
           const storage = new Storage(
             null,
-            attachmentDTO.filename,
+            attachmentDTO.fileName,
             BUCKET_NAME,
             publicUrl,
             toMysqlTimestampString(new Date()),
