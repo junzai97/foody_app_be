@@ -1,5 +1,5 @@
 const { connection } = require("../config/mysql");
-const AttachmentDTO = require("../dtos/attachment.dto");
+const AttachmentDTO = require("../dtos/attachmentDTO.dto");
 const AttachmentType = require("../enums/attachmentType.enum");
 const { uploadFiles } = require("../services/firebaseStorage.service");
 const { getFileExtension } = require("../utils/base64.utils");

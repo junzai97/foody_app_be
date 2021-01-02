@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createStorage } = require("../repository/storage.repository");
+const { createStorage } = require("../repository/storage.repostitory");
 
 router.get("/", async (req, res) => {
   const base64String =
