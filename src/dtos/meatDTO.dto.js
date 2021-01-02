@@ -5,6 +5,7 @@ function MeatDTO(
     maxParticipant,
     startTime,
     endTime,
+    base64String,
   ) {
     this.id = id;
     this.title = title;
@@ -12,6 +13,7 @@ function MeatDTO(
     this.maxParticipant = maxParticipant;
     this.startTime = startTime;
     this.endTime = endTime;
+    this.base64String = base64String;
   }
   
   module.exports = MeatDTO;
