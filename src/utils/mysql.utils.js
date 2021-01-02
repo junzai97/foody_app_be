@@ -1,5 +1,4 @@
 const { format } = require("date-fns");
-const { da } = require("date-fns/locale");
 
 function createPlaceholderString(count) {
     // '?, ?, ' remove last 2 characters (', ')
@@ -11,9 +10,10 @@ function toMysqlTimestampString(date) {
     if (!date instanceof Date) {
         throw new Error("cannot convert non Date object to Mysql timestamp");
     }
-    return format(date, 'YYYY-MM-DD HH:MM:SS')
+    return format(date, 'yyyy-MM-dd HH:mm:ss')
 }
 
 module.exports = {
     createPlaceholderString,
+    toMysqlTimestampString
 };
