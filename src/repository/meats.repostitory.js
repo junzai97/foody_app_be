@@ -1,12 +1,7 @@
 const { connection } = require("../config/mysql");
-const InvalidEntity = require('../exceptions/InvalidEntity.exception')
 const {createPlaceholderString} = require('../utils/mysql.utils')
-const Meat = require("../entities/meat.entity");
 
 function createMeat(meat) {
-  if (!meat instanceof Meat) {
-    throw new InvalidEntity("this is not a Meat object");
-  }
   return new Promise((resolve, reject) => {
     connection.query(
       `INSERT INTO MEAT (

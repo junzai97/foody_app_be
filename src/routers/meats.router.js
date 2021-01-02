@@ -3,14 +3,10 @@ const router = express.Router();
 const { toMysqlTimestampString } = require("../utils/mysql.utils");
 const { createMeat } = require("../repository/meats.repostitory");
 const Meat = require("../entities/meat.entity");
-const MeatDTO = require("../dtos/meatDTO.dto");
 const MeatStatus = require("../enums/meatStatus.enums");
 
 router.post("/meat", async (req, res) => {
   const meatDTO = req.body;
-  if (!meatDTO instanceof MeatDTO) {
-    res.status(400).send("invalid request body");
-  }
   try {
     const meat = new Meat(
       null,
