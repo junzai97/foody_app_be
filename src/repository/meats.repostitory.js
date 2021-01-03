@@ -10,8 +10,8 @@ function createMeat(meat) {
         TITLE,
         DESCRIPTION,
         MAX_PARTICIPANT,
-        STARTTIME,
-        ENDTIME,
+        START_TIME,
+        END_TIME,
         STATUS,
         CREATED_DATE,
         LAST_MODIFIED_DATE
