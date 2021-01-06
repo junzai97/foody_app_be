@@ -22,8 +22,30 @@ async function createMeatLocation(meatId, locationDTO) {
   return await _createDocument(FirestoreType.MEAT, meatLocation);
 }
 
+async function updateMeatLocation(meatId, locationDTO) {
+  if (hasMissingKey(locationDTO, new LocationDTO())) {
+    throw new Error("invalid locationDTO");
+  }
+  const geoHash = geofire.geohashForLocation([
+    locationDTO.latitude,
+    locationDTO.longitude,
+  ]);
+  const meatLocation = new MeatLocation(
+    meatId,
+    locationDTO.latitude,
+    locationDTO.longitude,
+    geoHash
+  );
+  const queryDocumentSnapshots = await _findDocuments(FirestoreType.MEAT, "meatId", "==", meatId);
+  if (queryDocumentSnapshots.length < 1) {
+    throw new Error(`meat with id ${meatId} is not found in firestore`)
+  }
+  const docId = queryDocumentSnapshots[0].id
+  return await _updateDocument(FirestoreType.MEAT, docId, meatLocation);
+}
+
 /**
- * 
+ *
  * @description this is a private function. Don't include it in module.exports
  */
 async function _createDocument(collectionName, data) {
@@ -31,6 +53,26 @@ async function _createDocument(collectionName, data) {
   return await collectionRef.set(JSON.parse(JSON.stringify(data)));
 }
 
+/**
+ *
+ * @description this is a private function. Don't include it in module.exports
+ */
+async function _findDocuments(collectionName, fieldPath, opStr, value) {
+  const citiesRef = db.collection(collectionName);
+  const querySnapshot = await citiesRef.where(fieldPath, opStr, value).get();
+  return querySnapshot.docs
+}
+
+/**
+ *
+ * @description this is a private function. Don't include it in module.exports
+ */
+async function _updateDocument(collectionName, docId, data) {
+  const docRef = db.collection(collectionName).doc(docId);
+  return await docRef.update(JSON.parse(JSON.stringify(data)));
+}
+
 module.exports = {
   createMeatLocation,
+  updateMeatLocation
 };

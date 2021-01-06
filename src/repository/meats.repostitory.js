@@ -69,6 +69,43 @@ function findOneMeat(meatId) {
   });
 }
 
+function updateMeat(meatId, meat) {
+  if (
+    hasMissingKey(meat, new Meat(), ["id", "createdDate", "lastModifiedDate"])
+  ) {
+    throw new Error("Cannot update invalid Meat object to DB");
+  }
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `UPDATE MEAT SET 
+      IMAGE_STORAGE_ID = ?,
+      TITLE = ?,
+      DESCRIPTION = ?,
+      MAX_PARTICIPANT = ?,
+      START_TIME = ?,
+      END_TIME = ?,
+      STATUS = ?,
+      LAST_MODIFIED_DATE = ?
+      WHERE ID = ?
+      `,
+      [
+        meat.imageStorageId,
+        meat.title,
+        meat.description,
+        meat.maxParticipant,
+        meat.startTime,
+        meat.endTime,
+        meat.status,
+        toMysqlTimestampString(new Date()),
+        meatId,
+      ],
+      (error, results, fields) => {
+        error ? reject(error) : resolve(results);
+      }
+    );
+  });
+}
+
 function cancelMeat(meatId) {
   return new Promise((resolve, reject) => {
     connection.query(
@@ -92,5 +129,6 @@ function cancelMeat(meatId) {
 module.exports = {
   createMeat,
   findOneMeat,
+  updateMeat,
   cancelMeat
 };

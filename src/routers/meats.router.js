@@ -5,13 +5,17 @@ const { hasMissingKey } = require("../utils/compare.utils");
 const {
   createMeat,
   findOneMeat,
+  updateMeat,
   cancelMeat,
 } = require("../repository/meats.repostitory");
 const {
   createStorage,
   findOneStorage,
 } = require("../repository/storage.repostitory");
-const { createMeatLocation } = require("../services/firestore.service");
+const {
+  createMeatLocation,
+  updateMeatLocation,
+} = require("../services/firestore.service");
 const Meat = require("../entities/meat.entity");
 const MeatDTO = require("../dtos/meatDTO.dto");
 const MeatStatus = require("../enums/meatStatus.enum");
@@ -78,6 +82,57 @@ router.get("/meat/:meatId", async (req, res) => {
       lastModifiedDate: meat.lastModifiedDate,
     };
     res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+});
+
+router.put("/meat", async (req, res) => {
+  const meatDTO = req.body;
+  const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), [
+    "base64String",
+  ]);
+  const isInvalidLocationDTO = hasMissingKey(
+    meatDTO.locationDTO,
+    new LocationDTO()
+  );
+  if (isInvalidMeatDTO || isInvalidLocationDTO) {
+    res.status(400).send("invalid request body");
+    return;
+  }
+  try {
+    const originalMeat = await findOneMeat(meatDTO.id);
+    let newMeat = new Meat(
+      originalMeat.id,
+      originalMeat.imageStorageId,
+      meatDTO.title,
+      meatDTO.description,
+      meatDTO.maxParticipant,
+      toMysqlTimestampString(new Date(meatDTO.startTime)),
+      toMysqlTimestampString(new Date(meatDTO.endTime)),
+      originalMeat.status,
+      originalMeat.createdDate,
+      toMysqlTimestampString(new Date())
+    );
+    if (meatDTO.base64String) {
+      // only update storage if meatDTO has base64String
+      const savedStorageResult = await createStorage(
+        meatDTO.base64String,
+        AttachmentType.MEAT
+      );
+      newMeat.imageStorageId = savedStorageResult.insertId;
+    }
+    const mysqlResponse = await updateMeat(originalMeat.id, newMeat);
+    if (mysqlResponse.affectedRows < 1) {
+      res.status(400).send("no meat is updated. Is meat exist?");
+      return;
+    }
+    const updatedFirestoreData = await updateMeatLocation(
+      originalMeat.id,
+      meatDTO.locationDTO
+    );
+    res.status(200).send(mysqlResponse);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
