@@ -1,26 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { toMysqlTimestampString } = require("../utils/mysql.utils");
 const { hasMissingKey } = require("../utils/compare.utils");
-const {
-  createMeat,
-  findOneMeat,
-  updateMeat,
-  cancelMeat,
-} = require("../repository/meats.repostitory");
-const {
-  createStorage,
-  findOneStorage,
-} = require("../repository/storage.repostitory");
 const {
   createMeatLocation,
   updateMeatLocation,
 } = require("../services/firestore.service");
-const Meat = require("../entities/meat.entity");
 const MeatDTO = require("../dtos/meatDTO.dto");
-const MeatStatus = require("../enums/meatStatus.enum");
-const AttachmentType = require("../enums/attachmentType.enum");
 const LocationDTO = require("../dtos/locationDTO.dto");
+const { createMeatService, updateMeatService, cancelMeatService, findOneMeatService } = require("../services/meat.service");
 
 router.post("/meat", async (req, res) => {
   const meatDTO = req.body;
@@ -34,23 +21,7 @@ router.post("/meat", async (req, res) => {
     return;
   }
   try {
-    const savedStorageResult = await createStorage(
-      meatDTO.base64String,
-      AttachmentType.MEAT
-    );
-    const meat = new Meat(
-      null,
-      savedStorageResult.insertId,
-      meatDTO.title,
-      meatDTO.description,
-      meatDTO.maxParticipant,
-      toMysqlTimestampString(new Date(meatDTO.startTime)),
-      toMysqlTimestampString(new Date(meatDTO.endTime)),
-      MeatStatus.ONGOING,
-      toMysqlTimestampString(new Date()),
-      toMysqlTimestampString(new Date())
-    );
-    const savedResult = await createMeat(meat);
+    const savedResult = await createMeatService(meatDTO);
     const firestoreData = await createMeatLocation(
       savedResult.insertId,
       meatDTO.locationDTO
@@ -58,30 +29,6 @@ router.post("/meat", async (req, res) => {
     res
       .status(201)
       .send(`Meat with id ${savedResult.insertId} saved succesfully`);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
-  }
-});
-
-router.get("/meat/:meatId", async (req, res) => {
-  try {
-    const meatId = req.params.meatId;
-    const meat = await findOneMeat(meatId);
-    const storage = await findOneStorage(meat.imageStorageId);
-    const result = {
-      id: meat.id,
-      imageUrl: storage.mediaLink,
-      title: meat.title,
-      description: meat.description,
-      maxParticipant: meat.maxParticipant,
-      startTime: meat.startTime,
-      endTime: meat.endTime,
-      status: meat.status,
-      createdDate: meat.createdDate,
-      lastModifiedDate: meat.lastModifiedDate,
-    };
-    res.status(200).send(result);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
@@ -102,34 +49,13 @@ router.put("/meat", async (req, res) => {
     return;
   }
   try {
-    const originalMeat = await findOneMeat(meatDTO.id);
-    let newMeat = new Meat(
-      originalMeat.id,
-      originalMeat.imageStorageId,
-      meatDTO.title,
-      meatDTO.description,
-      meatDTO.maxParticipant,
-      toMysqlTimestampString(new Date(meatDTO.startTime)),
-      toMysqlTimestampString(new Date(meatDTO.endTime)),
-      originalMeat.status,
-      originalMeat.createdDate,
-      toMysqlTimestampString(new Date())
-    );
-    if (meatDTO.base64String) {
-      // only update storage if meatDTO has base64String
-      const savedStorageResult = await createStorage(
-        meatDTO.base64String,
-        AttachmentType.MEAT
-      );
-      newMeat.imageStorageId = savedStorageResult.insertId;
-    }
-    const mysqlResponse = await updateMeat(originalMeat.id, newMeat);
+    const mysqlResponse = await updateMeatService(meatDTO);
     if (mysqlResponse.affectedRows < 1) {
       res.status(400).send("no meat is updated. Is meat exist?");
       return;
     }
     const updatedFirestoreData = await updateMeatLocation(
-      originalMeat.id,
+      meatDTO.id,
       meatDTO.locationDTO
     );
     res.status(200).send(mysqlResponse);
@@ -142,12 +68,23 @@ router.put("/meat", async (req, res) => {
 router.put("/meat/:meatId/cancel", async (req, res) => {
   try {
     const meatId = req.params.meatId;
-    const mysqlResponse = await cancelMeat(meatId);
+    const mysqlResponse = await cancelMeatService(meatId);
     if (mysqlResponse.affectedRows < 1) {
       res.status(400).send("no meat is cancelled. Is meat exist?");
       return;
     }
     res.status(200).send(mysqlResponse);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+});
+
+router.get("/meat/:meatId", async (req, res) => {
+  try {
+    const meatId = req.params.meatId;
+    const result = await findOneMeatService(meatId)
+    res.status(200).send(result);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
