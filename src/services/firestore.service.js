@@ -28,7 +28,7 @@ async function createMeatLocation(meatId, locationDTO) {
  */
 async function _createDocument(collectionName, data) {
   const collectionRef = db.collection(collectionName).doc();
-  return await collectionRef.set(data);
+  return await collectionRef.set(JSON.parse(JSON.stringify(data)));
 }
 
 module.exports = {
