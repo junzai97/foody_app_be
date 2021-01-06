@@ -38,13 +38,9 @@ router.post("/meat", async (req, res) => {
 router.put("/meat", async (req, res) => {
   const meatDTO = req.body;
   const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), [
-    "base64String",
+    "base64String", "locationDTO",
   ]);
-  const isInvalidLocationDTO = hasMissingKey(
-    meatDTO.locationDTO,
-    new LocationDTO()
-  );
-  if (isInvalidMeatDTO || isInvalidLocationDTO) {
+  if (isInvalidMeatDTO) {
     res.status(400).send("invalid request body");
     return;
   }
@@ -54,10 +50,13 @@ router.put("/meat", async (req, res) => {
       res.status(400).send("no meat is updated. Is meat exist?");
       return;
     }
-    const updatedFirestoreData = await updateMeatLocation(
-      meatDTO.id,
-      meatDTO.locationDTO
-    );
+    if (meatDTO.locationDTO) {
+      // only update locationDTO if exist
+      const updatedFirestoreData = await updateMeatLocation(
+        meatDTO.id,
+        meatDTO.locationDTO
+      );
+    }
     res.status(200).send(mysqlResponse);
   } catch (err) {
     console.log(err);
