@@ -6,6 +6,7 @@ function MeatDTO(
     startTime,
     endTime,
     base64String,
+    locationDTO,
   ) {
     this.id = id;
     this.title = title;
@@ -14,6 +15,7 @@ function MeatDTO(
     this.startTime = startTime;
     this.endTime = endTime;
     this.base64String = base64String;
+    this.locationDTO = locationDTO;
   }
   
   module.exports = MeatDTO;
