@@ -1,7 +1,12 @@
 const { connection } = require("../config/mysql");
-const {createPlaceholderString} = require('../utils/mysql.utils')
+const { createPlaceholderString } = require("../utils/mysql.utils");
+const { hasMissingKey } = require("../utils/compare.utils");
+const Meat = require("../entities/meat.entity");
 
 function createMeat(meat) {
+  if (hasMissingKey(meat, new Meat())) {
+    throw new Error("Cannot save invalid Meat object to DB");
+  }
   return new Promise((resolve, reject) => {
     connection.query(
       `INSERT INTO MEAT (
