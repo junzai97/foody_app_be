@@ -2,9 +2,10 @@ const { connection } = require("../config/mysql");
 const { createPlaceholderString } = require("../utils/mysql.utils");
 const { hasMissingKey } = require("../utils/compare.utils");
 const Meat = require("../entities/meat.entity");
+const Meat = require("../enums/meatStatus.enum");
 
 function createMeat(meat) {
-  if (hasMissingKey(meat, new Meat())) {
+  if (hasMissingKey(meat, new Meat(), ["id"])) {
     throw new Error("Cannot save invalid Meat object to DB");
   }
   return new Promise((resolve, reject) => {
@@ -40,6 +41,36 @@ function createMeat(meat) {
   });
 }
 
+function findOneMeat(meatId) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM MEAT WHERE id = ?",
+      [meatId],
+      (error, results, fields) => {
+        const result = results[0];
+        error
+          ? reject(error)
+          : resolve(
+              new Meat(
+                result.id,
+                result.image_storage_id,
+                result.title,
+                result.description,
+                result.max_participant,
+                result.start_time,
+                result.end_time,
+                result.status,
+                result.created_date,
+                result.last_modified_date
+              )
+            );
+      }
+    );
+  });
+}
+
+
 module.exports = {
   createMeat,
+  findOneMeat,
 };

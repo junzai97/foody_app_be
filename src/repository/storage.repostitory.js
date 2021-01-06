@@ -1,11 +1,15 @@
 const { connection } = require("../config/mysql");
 const AttachmentDTO = require("../dtos/attachmentDTO.dto");
+const Storage = require("../entities/storage.entity");
 const AttachmentType = require("../enums/attachmentType.enum");
 const { uploadFiles } = require("../services/firebaseStorage.service");
 const { getFileExtension } = require("../utils/base64.utils");
 const { createPlaceholderString } = require("../utils/mysql.utils");
 
-async function createStorage(base64String, attachmentType = AttachmentType.OTHERS) {
+async function createStorage(
+  base64String,
+  attachmentType = AttachmentType.OTHERS
+) {
   const fileName = `${attachmentType}_${new Date().toISOString()}.${getFileExtension(
     base64String
   )}`;
@@ -36,6 +40,31 @@ async function createStorage(base64String, attachmentType = AttachmentType.OTHER
   });
 }
 
+async function findOneStorage(storageId) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM STORAGE WHERE id = ?",
+      [storageId],
+      (error, results, fields) => {
+        const result = results[0];
+        error
+          ? reject(error)
+          : resolve(
+              new Storage(
+                result.id,
+                result.file_name,
+                result.bucket,
+                result.media_link,
+                result.created_date,
+                result.last_modified_date
+              )
+            );
+      }
+    );
+  });
+}
+
 module.exports = {
   createStorage,
+  findOneStorage,
 };
