@@ -1,8 +1,8 @@
 const { connection } = require("../config/mysql");
-const { createPlaceholderString } = require("../utils/mysql.utils");
+const { createPlaceholderString, toMysqlTimestampString } = require("../utils/mysql.utils");
 const { hasMissingKey } = require("../utils/compare.utils");
 const Meat = require("../entities/meat.entity");
-const Meat = require("../enums/meatStatus.enum");
+const MeatStatus = require("../enums/meatStatus.enum");
 
 function createMeat(meat) {
   if (hasMissingKey(meat, new Meat(), ["id"])) {
@@ -69,8 +69,28 @@ function findOneMeat(meatId) {
   });
 }
 
+function cancelMeat(meatId) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `UPDATE MEAT SET 
+      STATUS = ?,
+      LAST_MODIFIED_DATE = ?
+      WHERE ID = ?
+      `,
+      [
+        MeatStatus.CANCELLED, 
+        toMysqlTimestampString(new Date()),
+        meatId,
+      ],
+      (error, results, fields) => {
+        error ? reject(error) : resolve(results);
+      }
+    );
+  });
+}
 
 module.exports = {
   createMeat,
   findOneMeat,
+  cancelMeat
 };

@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { toMysqlTimestampString } = require("../utils/mysql.utils");
 const { hasMissingKey } = require("../utils/compare.utils");
-const { createMeat, findOneMeat } = require("../repository/meats.repostitory");
+const {
+  createMeat,
+  findOneMeat,
+  cancelMeat,
+} = require("../repository/meats.repostitory");
 const {
   createStorage,
   findOneStorage,
@@ -74,6 +78,21 @@ router.get("/meat/:meatId", async (req, res) => {
       lastModifiedDate: meat.lastModifiedDate,
     };
     res.status(200).send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+});
+
+router.put("/meat/:meatId/cancel", async (req, res) => {
+  try {
+    const meatId = req.params.meatId;
+    const mysqlResponse = await cancelMeat(meatId);
+    if (mysqlResponse.affectedRows < 1) {
+      res.status(400).send("no meat is cancelled. Is meat exist?");
+      return;
+    }
+    res.status(200).send(mysqlResponse);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
