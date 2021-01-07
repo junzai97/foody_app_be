@@ -36,12 +36,25 @@ async function updateMeatLocation(meatId, locationDTO) {
     locationDTO.longitude,
     geoHash
   );
-  const queryDocumentSnapshots = await _findDocuments(FirestoreType.MEAT, "meatId", "==", meatId);
-  if (queryDocumentSnapshots.length < 1) {
-    throw new Error(`meat with id ${meatId} is not found in firestore`)
-  }
-  const docId = queryDocumentSnapshots[0].id
+  const { docId } = await findOneMeatLocationByMeatId(meatId);
   return await _updateDocument(FirestoreType.MEAT, docId, meatLocation);
+}
+
+async function findOneMeatLocationByMeatId(meatId) {
+  const queryDocumentSnapshots = await _findDocuments(
+    FirestoreType.MEAT,
+    "meatId",
+    "==",
+    parseInt(meatId)
+  );
+  if (queryDocumentSnapshots.length < 1) {
+    throw new Error(`meat with id ${meatId} is not found in firestore`);
+  }
+  const result = queryDocumentSnapshots[0];
+  return {
+    docId: result.id,
+    data: result.data()
+  };
 }
 
 /**
@@ -60,7 +73,7 @@ async function _createDocument(collectionName, data) {
 async function _findDocuments(collectionName, fieldPath, opStr, value) {
   const citiesRef = db.collection(collectionName);
   const querySnapshot = await citiesRef.where(fieldPath, opStr, value).get();
-  return querySnapshot.docs
+  return querySnapshot.docs;
 }
 
 /**
@@ -74,5 +87,6 @@ async function _updateDocument(collectionName, docId, data) {
 
 module.exports = {
   createMeatLocation,
-  updateMeatLocation
+  updateMeatLocation,
+  findOneMeatLocationByMeatId
 };
