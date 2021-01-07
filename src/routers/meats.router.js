@@ -1,66 +1,51 @@
 const express = require("express");
 const router = express.Router();
 const { hasMissingKey } = require("../utils/compare.utils");
-const {
-  createMeatLocation,
-  updateMeatLocation,
-} = require("../services/firestore.service");
+const { handleError } = require("../utils/router.utils");
 const MeatDTO = require("../dtos/meatDTO.dto");
 const LocationDTO = require("../dtos/locationDTO.dto");
-const { createMeatService, updateMeatService, cancelMeatService, findOneMeatService } = require("../services/meat.service");
+const {
+  createMeatService,
+  updateMeatService,
+  cancelMeatService,
+  findOneMeatService,
+} = require("../services/meat.service");
+const BadRequestException = require("../exceptions/badRequestException.exception");
 
 router.post("/meat", async (req, res) => {
-  const meatDTO = req.body;
-  const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), ["id"]);
-  const isInvalidLocationDTO = hasMissingKey(
-    meatDTO.locationDTO,
-    new LocationDTO()
-  );
-  if (isInvalidMeatDTO || isInvalidLocationDTO) {
-    res.status(400).send("invalid request body");
-    return;
-  }
   try {
-    const savedResult = await createMeatService(meatDTO);
-    const firestoreData = await createMeatLocation(
-      savedResult.insertId,
-      meatDTO.locationDTO
+    const meatDTO = req.body;
+    const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), ["id"]);
+    const isInvalidLocationDTO = hasMissingKey(
+      meatDTO.locationDTO,
+      new LocationDTO()
     );
+    if (isInvalidMeatDTO || isInvalidLocationDTO) {
+      throw new BadRequestException("invalid request body");
+    }
+    const savedResult = await createMeatService(meatDTO);
     res
       .status(201)
       .send(`Meat with id ${savedResult.insertId} saved succesfully`);
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    handleError(res, err);
   }
 });
 
 router.put("/meat", async (req, res) => {
-  const meatDTO = req.body;
-  const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), [
-    "base64String", "locationDTO",
-  ]);
-  if (isInvalidMeatDTO) {
-    res.status(400).send("invalid request body");
-    return;
-  }
   try {
+    const meatDTO = req.body;
+    const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), [
+      "base64String",
+      "locationDTO",
+    ]);
+    if (isInvalidMeatDTO) {
+      throw new BadRequestException("invalid request body");
+    }
     const mysqlResponse = await updateMeatService(meatDTO);
-    if (mysqlResponse.affectedRows < 1) {
-      res.status(400).send("no meat is updated. Is meat exist?");
-      return;
-    }
-    if (meatDTO.locationDTO) {
-      // only update locationDTO if exist
-      const updatedFirestoreData = await updateMeatLocation(
-        meatDTO.id,
-        meatDTO.locationDTO
-      );
-    }
     res.status(200).send(mysqlResponse);
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    handleError(res, err);
   }
 });
 
@@ -68,25 +53,19 @@ router.put("/meat/:meatId/cancel", async (req, res) => {
   try {
     const meatId = req.params.meatId;
     const mysqlResponse = await cancelMeatService(meatId);
-    if (mysqlResponse.affectedRows < 1) {
-      res.status(400).send("no meat is cancelled. Is meat exist?");
-      return;
-    }
     res.status(200).send(mysqlResponse);
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    handleError(res, err);
   }
 });
 
 router.get("/meat/:meatId", async (req, res) => {
   try {
     const meatId = req.params.meatId;
-    const result = await findOneMeatService(meatId)
+    const result = await findOneMeatService(meatId);
     res.status(200).send(result);
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    handleError(res, err);
   }
 });
 

@@ -1,5 +1,9 @@
 const { toMysqlTimestampString } = require("../utils/mysql.utils");
 const {
+  createMeatLocation,
+  updateMeatLocation,
+} = require("../services/firestore.service");
+const {
   createMeat,
   findOneMeat,
   updateMeat,
@@ -12,6 +16,7 @@ const {
 const Meat = require("../entities/meat.entity");
 const MeatStatus = require("../enums/meatStatus.enum");
 const AttachmentType = require("../enums/attachmentType.enum");
+const BadRequestException = require("../exceptions/badRequestException.exception");
 
 async function createMeatService(meatDTO) {
   const savedStorageResult = await createStorage(
@@ -30,7 +35,12 @@ async function createMeatService(meatDTO) {
     toMysqlTimestampString(new Date()),
     toMysqlTimestampString(new Date())
   );
-  return await createMeat(meat);
+  const mysqlResponse = await createMeat(meat);
+  const firestoreData = await createMeatLocation(
+    mysqlResponse.insertId,
+    meatDTO.locationDTO
+  );
+  return mysqlResponse;
 }
 
 async function updateMeatService(meatDTO) {
@@ -55,11 +65,26 @@ async function updateMeatService(meatDTO) {
     );
     newMeat.imageStorageId = savedStorageResult.insertId;
   }
-  return await updateMeat(originalMeat.id, newMeat);
+  const mysqlResponse = await updateMeat(originalMeat.id, newMeat);
+  if (mysqlResponse.affectedRows < 1) {
+    throw new BadRequestException("no meat is updated. Is meat exist?");
+  }
+  if (meatDTO.locationDTO) {
+    // only update locationDTO if exist
+    const updatedFirestoreData = await updateMeatLocation(
+      meatDTO.id,
+      meatDTO.locationDTO
+    );
+  }
+  return mysqlResponse;
 }
 
 async function cancelMeatService(meatId) {
-  return await cancelMeat(meatId);
+  const mysqlResponse = await cancelMeat(meatId);
+  if (mysqlResponse.affectedRows < 1) {
+    throw new BadRequestException("no meat is cancelled. Is meat exist?");
+  }
+  return mysqlResponse;
 }
 
 async function findOneMeatService(meatId) {
