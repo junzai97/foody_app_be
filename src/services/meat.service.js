@@ -2,6 +2,7 @@ const { toMysqlTimestampString } = require("../utils/mysql.utils");
 const {
   createMeatLocation,
   updateMeatLocation,
+  findOneMeatLocationByMeatId,
 } = require("../services/firestore.service");
 const {
   createMeat,
@@ -17,6 +18,8 @@ const Meat = require("../entities/meat.entity");
 const MeatStatus = require("../enums/meatStatus.enum");
 const AttachmentType = require("../enums/attachmentType.enum");
 const BadRequestException = require("../exceptions/badRequestException.exception");
+const LocationDTO = require("../dtos/locationDTO.dto");
+const { getMeatAnalyticsService } = require("./meatUser.service");
 
 async function createMeatService(meatDTO) {
   const savedStorageResult = await createStorage(
@@ -90,6 +93,8 @@ async function cancelMeatService(meatId) {
 async function findOneMeatService(meatId) {
   const meat = await findOneMeat(meatId);
   const storage = await findOneStorage(meat.imageStorageId);
+  const { data } = await findOneMeatLocationByMeatId(meatId);
+  const { totalParticipants, isParticipated } = await getMeatAnalyticsService(meatId);
   const result = {
     id: meat.id,
     imageUrl: storage.mediaLink,
@@ -99,6 +104,9 @@ async function findOneMeatService(meatId) {
     startTime: meat.startTime,
     endTime: meat.endTime,
     status: meat.status,
+    locationDTO: new LocationDTO(data.latitude, data.longitude),
+    totalParticipants: totalParticipants,
+    isParticipated: isParticipated,
     createdDate: meat.createdDate,
     lastModifiedDate: meat.lastModifiedDate,
   };
