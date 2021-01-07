@@ -1,0 +1,14 @@
+{
+    "configurations": [
+    {
+        "name": "Attach",
+        "port": 3000,
+        "request": "attach",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "pwa-node"
+    }
+    ]
+
+}

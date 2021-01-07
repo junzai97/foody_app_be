@@ -33,7 +33,7 @@ function createUser(user){
     });
 }
 
-function getUser(email){
+function getUserWithEmail(email){
     return new Promise ((resolve, reject) => {
         connection.query('SELECT * FROM user WHERE email = ?', [email], (error, results, fields) => {
             user = results[0];
@@ -42,7 +42,59 @@ function getUser(email){
     }) 
 }
 
+function getUserWithUsername(username){
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT * FROM user WHERE username = ?', [username], (error, results,fields) => {
+            user = results[0];
+            error? reject(error):resolve(user);
+        })
+    })
+}
+
+function getUserWithId(id){
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT * FROM user WHERE id = ?', [id], (error, results, fields) => {
+            user = results[0];
+            error? reject(error): resolve(user);
+        })
+    })
+}
+
+function createToken( userId, token){
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO token (
+            USER_ID,
+            TOKEN
+        ) VALUES (${createPlaceholderString(2)})`,
+        [userId, token], (error, results, fields) => {
+            error? reject(error): resolve();
+        })
+    })
+}
+
+function getToken( userId, token ){
+    return new Promise ((resolve, reject) => {
+        connection.query('SELECT * FROM token WHERE user_id = ? AND token = ?', [userId, token], (error, results, fields) => {
+            const result = results[0];
+            error? reject(error): resolve(result);
+        })
+    })
+}
+
+function removeToken( userId , token) {
+    return new Promise((resolve, reject) => {
+        connection.query('DELETE FROM token WHERE user_id = ? AND token = ?', [userId, token], (error, results, fields) => {
+            error? reject(error): resolve();
+        })
+    })
+}
+
 module.exports = {
-    getUser,
-    createUser
+    createUser,
+    getUserWithEmail,
+    getUserWithUsername,
+    getUserWithId,
+    getToken,
+    createToken,
+    removeToken
 }
