@@ -5,9 +5,9 @@
 3. Create a **.env** file in the project root directory.
 4. Insert following keys with it respective value in the **.env file** (Kindly refer to https://www.npmjs.com/package/dotenv)   
   ```
-  *DB_USER=<Your MYSQL username> 
-  *DB_PASS=<Your MYSQL pasword>
-  *JWT_SECRET=<Random value to used for generate JWT token>
+  DB_USER=<Your MYSQL username> 
+  DB_PASS=<Your MYSQL pasword>
+  JWT_SECRET=<Random value to used for generate JWT token>
   ```  
 
 ### Set up MySQL Server
