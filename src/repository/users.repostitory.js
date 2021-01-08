@@ -6,23 +6,17 @@ function createUser(user){
         connection.query(
             `INSERT INTO USER (
                 ID,
-                IMAGE_STORAGE_ID,
                 USERNAME,
                 EMAIL,
                 PASSWORD,
-                GENDER,
-                BIOGRAPHY,
                 CREATED_DATE,
                 LAST_MODIFIED_DATE
-            ) VALUES (${createPlaceholderString(9)})`,
+            ) VALUES (${createPlaceholderString(6)})`,
             [
                 user.id,
-                user.imageStorageId,
                 user.username,
                 user.email,
                 user.password,
-                user.gender,
-                user.biography,
                 user.createdDate,
                 user.lastModifiedDate
             ],
@@ -45,7 +39,7 @@ function getUserWithEmail(email){
 function getUserWithUsername(username){
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM user WHERE username = ?', [username], (error, results,fields) => {
-            user = results[0];
+            const user = results[0];
             error? reject(error):resolve(user);
         })
     })
@@ -54,16 +48,32 @@ function getUserWithUsername(username){
 function getUserWithId(id){
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM user WHERE id = ?', [id], (error, results, fields) => {
-            user = results[0];
+            const user = results[0];
             error? reject(error): resolve(user);
         })
     })
 }
 
+function updateUserDetails(userDetails){
+    return new Promise((resolve, reject) => {
+        connection.query('UPDATE user SET image_storage_id = ?, gender = ?, biography = ? , last_modified_date = ? WHERE id = ?', 
+        [
+            userDetails.imageStorageId, 
+            userDetails.gender, 
+            userDetails.biography,
+            userDetails.lastModifiedDate, 
+            userDetails.id
+        ], 
+        (error, results, fields) => {
+            error? reject(error): resolve();
+        })
+    })
+}
 
 module.exports = {
     createUser,
     getUserWithEmail,
     getUserWithUsername,
     getUserWithId,
+    updateUserDetails
 }
