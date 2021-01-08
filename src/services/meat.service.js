@@ -20,6 +20,7 @@ const AttachmentType = require("../enums/attachmentType.enum");
 const BadRequestException = require("../exceptions/badRequestException.exception");
 const LocationDTO = require("../dtos/locationDTO.dto");
 const { getMeatAnalyticsService } = require("./meatUser.service");
+const { getAllMeatPreferenceService } = require("./meatPreference.service");
 
 async function createMeatService(meatDTO) {
   const savedStorageResult = await createStorage(
@@ -95,6 +96,7 @@ async function findOneMeatService(meatId) {
   const storage = await findOneStorage(meat.imageStorageId);
   const { data } = await findOneMeatLocationByMeatId(meatId);
   const { totalParticipants, role } = await getMeatAnalyticsService(meatId);
+  const preferences = getAllMeatPreferenceService(meatId);
   const result = {
     id: meat.id,
     imageUrl: storage.mediaLink,
@@ -107,6 +109,7 @@ async function findOneMeatService(meatId) {
     locationDTO: new LocationDTO(data.latitude, data.longitude),
     totalParticipants: totalParticipants,
     role: role,
+    preferences: preferences,
     createdDate: meat.createdDate,
     lastModifiedDate: meat.lastModifiedDate,
   };
