@@ -11,7 +11,10 @@ const {
   findOneMeatService,
 } = require("../services/meat.service");
 const BadRequestException = require("../exceptions/badRequestException.exception");
-const { createMeatParticipantService } = require("../services/meatUser.service");
+const {
+  createMeatParticipantService,
+  notComingMeatService,
+} = require("../services/meatUser.service");
 
 router.post("/meat", async (req, res) => {
   try {
@@ -41,6 +44,17 @@ router.post("/meat/:meatId/join", async (req, res) => {
     res
       .status(201)
       .send(`MeatUser with id ${savedResult.insertId} saved succesfully`);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.put("/meat/:meatId/unjoin", async (req, res) => {
+  try {
+    const meatId = req.params.meatId;
+    const userId = 1;
+    const mysqlResponse = await notComingMeatService(meatId, userId);
+    res.status(200).send(mysqlResponse);
   } catch (err) {
     handleError(res, err);
   }

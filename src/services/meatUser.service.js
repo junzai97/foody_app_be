@@ -1,5 +1,6 @@
 const {
   createMeatUser,
+  updateMeatUserStatus,
   findAllMeatUserByMeatId,
 } = require("../repository/meatUsers.repostitory");
 const MeatUserRole = require("../enums/meatUserRole.enum");
@@ -11,6 +12,14 @@ async function createMeatOrganiserService(meatId, userId) {
 
 async function createMeatParticipantService(meatId, userId) {
   return await createMeatUser(meatId, userId, MeatUserRole.PARTICIPANT);
+}
+
+async function notComingMeatService(meatId, userId) {
+   const mysqlResponse = await updateMeatUserStatus(meatId, userId, MeatUserStatus.NOT_COMING);
+   if (mysqlResponse.affectedRows < 1) {
+     throw new BadRequestException("no meat is updated. Is meat exist?");
+   }
+   return mysqlResponse;
 }
 
 /**
@@ -36,5 +45,6 @@ async function getMeatAnalyticsService(meatId = 0, userId = 0) {
 module.exports = {
   createMeatOrganiserService,
   createMeatParticipantService,
+  notComingMeatService,
   getMeatAnalyticsService,
 };

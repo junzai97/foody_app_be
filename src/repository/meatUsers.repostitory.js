@@ -68,7 +68,7 @@ function findAllMeatUserByMeatId(meatId) {
           ? reject(error)
           : resolve(
               results.map((result) => {
-                new MeatUser(
+                return new MeatUser(
                   result.id,
                   result.meat_id,
                   result.user_id,
