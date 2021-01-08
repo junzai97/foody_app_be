@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 
 const { toMysqlTimestampString } = require('../utils/mysql.utils');
-const { createUser, getUserWithEmail, getUserWithUsername, createToken, removeToken} = require('../repository/users.repostitory')
+const { createUser, getUserWithEmail, getUserWithUsername} = require('../repository/users.repostitory')
 const { createStorage } = require('../repository/storage.repostitory');
 const { hasMissingKey } = require("../utils/compare.utils");
 const User = require('../entities/user.entity');
@@ -81,7 +81,6 @@ router.post('/users/login', async (req,res) => {
         
         //Create and store token in the database
         const token = jwt.sign({id: user.id.toString()}, process.env.JWT_SECRET, {expiresIn: 86400})
-        await createToken(user.id, token);
         res.status(200).send({auth: true, token});
 
     } catch(err){
@@ -95,17 +94,6 @@ router.post('/users/login', async (req,res) => {
 router.get('/users/me', auth, async (req, res) => {
     try {
         res.status(200).send(req.user);
-    } catch (err) {
-        res.status(500).send(err);
-    }
-})
-/**
- * @description Logout user
- */
-router.post('/users/logout', auth, async (req, res) => {
-    try{
-        await removeToken(req.user.id, req.token);
-        res.status(200).send("User has logout.");
     } catch (err) {
         res.status(500).send(err);
     }

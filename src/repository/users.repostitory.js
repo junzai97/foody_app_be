@@ -6,7 +6,7 @@ function createUser(user){
         connection.query(
             `INSERT INTO USER (
                 ID,
-                FIREBASE_UID,
+                IMAGE_STORAGE_ID,
                 USERNAME,
                 EMAIL,
                 PASSWORD,
@@ -60,41 +60,10 @@ function getUserWithId(id){
     })
 }
 
-function createToken( userId, token){
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO token (
-            USER_ID,
-            TOKEN
-        ) VALUES (${createPlaceholderString(2)})`,
-        [userId, token], (error, results, fields) => {
-            error? reject(error): resolve();
-        })
-    })
-}
-
-function getToken( userId, token ){
-    return new Promise ((resolve, reject) => {
-        connection.query('SELECT * FROM token WHERE user_id = ? AND token = ?', [userId, token], (error, results, fields) => {
-            const result = results[0];
-            error? reject(error): resolve(result);
-        })
-    })
-}
-
-function removeToken( userId , token) {
-    return new Promise((resolve, reject) => {
-        connection.query('DELETE FROM token WHERE user_id = ? AND token = ?', [userId, token], (error, results, fields) => {
-            error? reject(error): resolve();
-        })
-    })
-}
 
 module.exports = {
     createUser,
     getUserWithEmail,
     getUserWithUsername,
     getUserWithId,
-    getToken,
-    createToken,
-    removeToken
 }
