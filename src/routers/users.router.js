@@ -56,7 +56,7 @@ router.post('/users', async (req,res) => {
         const result = await createUser(user);
 
         const token = jwt.sign({id: result.insertId.toString()}, process.env.JWT_SECRET, {expiresIn: 86400})
-        res.status(200).send({auth: true, token});
+        res.status(201).send({auth: true, token});
 
     } catch (err) {
         res.status(500).send(err);
@@ -88,6 +88,8 @@ router.patch('/users/me',auth, async (req, res) => {
             lastModifiedDate: toMysqlTimestampString(new Date()),
         }
 
+        await updateUserDetails(user);
+        
         res
         .status(200)
         .send(`User updated succesfully`);
