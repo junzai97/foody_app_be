@@ -94,7 +94,7 @@ async function findOneMeatService(meatId) {
   const meat = await findOneMeat(meatId);
   const storage = await findOneStorage(meat.imageStorageId);
   const { data } = await findOneMeatLocationByMeatId(meatId);
-  const { totalParticipants, isParticipated } = await getMeatAnalyticsService(meatId);
+  const { totalParticipants, role } = await getMeatAnalyticsService(meatId);
   const result = {
     id: meat.id,
     imageUrl: storage.mediaLink,
@@ -106,7 +106,7 @@ async function findOneMeatService(meatId) {
     status: meat.status,
     locationDTO: new LocationDTO(data.latitude, data.longitude),
     totalParticipants: totalParticipants,
-    isParticipated: isParticipated,
+    role: role,
     createdDate: meat.createdDate,
     lastModifiedDate: meat.lastModifiedDate,
   };
