@@ -1,5 +1,33 @@
 const { connection } = require("../config/mysql");
+const {
+  createPlaceholderString,
+  toMysqlTimestampString,
+} = require("../utils/mysql.utils");
 const Preference = require("../entities/meatPreference.entity");
+
+function createMeatPreference(meatId, preferenceId) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `INSERT INTO MEAT_PREFERENCE (
+        ID,
+        MEAT_ID,
+        PREFERENCE_ID,
+        CREATED_DATE,
+        LAST_MODIFIED_DATE
+      ) VALUES (${createPlaceholderString(5)})`,
+      [
+        null,
+        meatId,
+        preferenceId,
+        toMysqlTimestampString(new Date()),
+        toMysqlTimestampString(new Date()),
+      ],
+      (error, results, fields) => {
+        error ? reject(error) : resolve(results);
+      }
+    );
+  });
+}
 
 function findAllMeatPreferences(meatId) {
   return new Promise((resolve, reject) => {
@@ -14,7 +42,7 @@ function findAllMeatPreferences(meatId) {
           ? reject(error)
           : resolve(
               results.map((result) => {
-                new Preference(
+                return new Preference(
                   result.id,
                   result.name,
                   result.description,
@@ -29,5 +57,6 @@ function findAllMeatPreferences(meatId) {
 }
 
 module.exports = {
+  createMeatPreference,
   findAllMeatPreferences,
 };

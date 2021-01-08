@@ -19,10 +19,16 @@ const MeatStatus = require("../enums/meatStatus.enum");
 const AttachmentType = require("../enums/attachmentType.enum");
 const BadRequestException = require("../exceptions/badRequestException.exception");
 const LocationDTO = require("../dtos/locationDTO.dto");
-const { getMeatAnalyticsService } = require("./meatUser.service");
-const { getAllMeatPreferenceService } = require("./meatPreference.service");
+const {
+  getMeatAnalyticsService,
+  createMeatOrganiserService,
+} = require("./meatUser.service");
+const {
+  getAllMeatPreferenceService,
+  createMeatPreferencesService,
+} = require("./meatPreference.service");
 
-async function createMeatService(meatDTO) {
+async function createMeatService(meatDTO, userId) {
   const savedStorageResult = await createStorage(
     meatDTO.base64String,
     AttachmentType.MEAT
@@ -39,12 +45,18 @@ async function createMeatService(meatDTO) {
     toMysqlTimestampString(new Date()),
     toMysqlTimestampString(new Date())
   );
-  const mysqlResponse = await createMeat(meat);
-  const firestoreData = await createMeatLocation(
-    mysqlResponse.insertId,
-    meatDTO.locationDTO
+  const meatMysqlResponse = await createMeat(meat);
+  const meatId = meatMysqlResponse.insertId;
+  const meatPreferenceMysqlResponse = await createMeatPreferencesService(
+    meatId,
+    meatDTO.preferenceIds
   );
-  return mysqlResponse;
+  const firestoreData = await createMeatLocation(meatId, meatDTO.locationDTO);
+  const meatUserMysqlResponse = await createMeatOrganiserService(
+    meatId,
+    userId
+  );
+  return meatMysqlResponse;
 }
 
 async function updateMeatService(meatDTO) {
@@ -96,7 +108,7 @@ async function findOneMeatService(meatId) {
   const storage = await findOneStorage(meat.imageStorageId);
   const { data } = await findOneMeatLocationByMeatId(meatId);
   const { totalParticipants, role } = await getMeatAnalyticsService(meatId);
-  const preferences = getAllMeatPreferenceService(meatId);
+  const preferences = await getAllMeatPreferenceService(meatId);
   const result = {
     id: meat.id,
     imageUrl: storage.mediaLink,
