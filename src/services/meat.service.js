@@ -26,6 +26,7 @@ const {
 const {
   getAllMeatPreferenceService,
   createMeatPreferencesService,
+  updateMeatPreferencesService,
 } = require("./meatPreference.service");
 
 async function createMeatService(meatDTO, userId) {
@@ -85,6 +86,7 @@ async function updateMeatService(meatDTO) {
   if (mysqlResponse.affectedRows < 1) {
     throw new BadRequestException("no meat is updated. Is meat exist?");
   }
+  await updateMeatPreferencesService(originalMeat.id, meatDTO.preferenceIds);
   if (meatDTO.locationDTO) {
     // only update locationDTO if exist
     const updatedFirestoreData = await updateMeatLocation(

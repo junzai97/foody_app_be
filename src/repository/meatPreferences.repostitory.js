@@ -56,7 +56,23 @@ function findAllMeatPreferences(meatId) {
   });
 }
 
+function deleteMeatPreference(meatId, preferenceId) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `delete from MEAT_PREFERENCE WHERE MEAT_ID = ? AND PREFERENCE_ID = ?`,
+      [
+        meatId,
+        preferenceId,
+      ],
+      (error, results, fields) => {
+        error ? reject(error) : resolve(results);
+      }
+    );
+  });
+}
+
 module.exports = {
   createMeatPreference,
   findAllMeatPreferences,
+  deleteMeatPreference
 };
