@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const auth = require('../middleware/auth.middleware');
 const { hasMissingKey } = require("../utils/compare.utils");
 const { handleError } = require("../utils/router.utils");
 const MeatDTO = require("../dtos/meatDTO.dto");
@@ -17,8 +18,9 @@ const {
   notComingMeatService,
 } = require("../services/meatUser.service");
 
-router.post("/meat", async (req, res) => {
+router.post("/meat", auth, async (req, res) => {
   try {
+    const userId = req.user.id
     const meatDTO = req.body;
     const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), ["id"]);
     const isInvalidLocationDTO = hasMissingKey(
@@ -28,7 +30,7 @@ router.post("/meat", async (req, res) => {
     if (isInvalidMeatDTO || isInvalidLocationDTO) {
       throw new BadRequestException("invalid request body");
     }
-    const savedResult = await createMeatService(meatDTO);
+    const savedResult = await createMeatService(meatDTO, userId);
     res
       .status(201)
       .send(`Meat with id ${savedResult.insertId} saved succesfully`);
