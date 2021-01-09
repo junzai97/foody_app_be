@@ -112,11 +112,11 @@ async function findUpcomingMeats(userId) {
   return await findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter(goingMeatIds, MeatStatus.ONGOING);
 }
 
-async function findOneMeatService(meatId) {
+async function findOneMeatService(meatId, userId) {
   const meat = await findOneMeat(meatId);
   const storage = await findOneStorage(meat.imageStorageId);
   const { data } = await findOneMeatLocationByMeatId(meatId);
-  const { totalParticipants, role, status } = await getMeatAnalyticsService(meatId);
+  const { totalParticipants, role, status } = await getMeatAnalyticsService(meatId, userId);
   const preferences = await getAllMeatPreferenceService(meatId);
   const result = {
     id: meat.id,

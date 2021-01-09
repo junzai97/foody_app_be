@@ -103,7 +103,8 @@ router.get("/meat/upcoming", auth, async (req, res) => {
 router.get("/meat/:meatId", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
-    const result = await findOneMeatService(meatId);
+    const userId = req.user.id
+    const result = await findOneMeatService(meatId, userId);
     res.status(200).send(result);
   } catch (err) {
     handleError(res, err);

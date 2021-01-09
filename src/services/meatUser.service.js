@@ -44,6 +44,7 @@ async function findGoingMeatsService(userId) {
  * @returns an object containing totalParticipants and role
  * @var totalParticipants is the total count of ONGOING participants
  * @var role is either [organiser, participant, null - haven't join]
+ * @var status is either [going, not_coming, null - haven't join]
  *
  */
 async function getMeatAnalyticsService(meatId = 0, userId = 0) {
