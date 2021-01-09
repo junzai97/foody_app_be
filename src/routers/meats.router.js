@@ -55,7 +55,7 @@ router.post("/meat/:meatId/join", auth, async (req, res) => {
 router.put("/meat/:meatId/unjoin", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
-    const userId = 1;
+    const userId = req.user.id
     const mysqlResponse = await notComingMeatService(meatId, userId);
     res.status(200).send(mysqlResponse);
   } catch (err) {
