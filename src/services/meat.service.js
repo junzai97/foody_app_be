@@ -109,14 +109,37 @@ async function cancelMeatService(meatId) {
 
 async function findUpcomingMeats(userId) {
   const goingMeatIds = await findGoingMeatsService(userId);
-  return await findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter(goingMeatIds, MeatStatus.ONGOING);
+  const meats = await findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter(
+    goingMeatIds,
+    MeatStatus.ONGOING
+  );
+  return Promise.all(
+    meats.map(async (meat) => {
+      const storage = await findOneStorage(meat.imageStorageId);
+      return {
+        id: meat.id,
+        imageUrl: storage.mediaLink,
+        title: meat.title,
+        description: meat.description,
+        maxParticipant: meat.maxParticipant,
+        startTime: meat.startTime,
+        endTime: meat.endTime,
+        status: meat.status,
+        createdDate: meat.createdDate,
+        lastModifiedDate: meat.lastModifiedDate,
+      };
+    })
+  );
 }
 
 async function findOneMeatService(meatId, userId) {
   const meat = await findOneMeat(meatId);
   const storage = await findOneStorage(meat.imageStorageId);
   const { data } = await findOneMeatLocationByMeatId(meatId);
-  const { totalParticipants, role, status } = await getMeatAnalyticsService(meatId, userId);
+  const { totalParticipants, role, status } = await getMeatAnalyticsService(
+    meatId,
+    userId
+  );
   const preferences = await getAllMeatPreferenceService(meatId);
   const result = {
     id: meat.id,

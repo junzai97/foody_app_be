@@ -92,7 +92,7 @@ router.put("/meat/:meatId/cancel", auth, async (req, res) => {
 
 router.get("/meat/upcoming", auth, async (req, res) => {
   try {
-    const userId = 1;
+    const userId = req.user.id
     const result = await findUpcomingMeats(userId);
     res.status(200).send(result);
   } catch (err) {
