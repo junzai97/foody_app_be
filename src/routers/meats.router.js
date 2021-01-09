@@ -39,7 +39,7 @@ router.post("/meat", auth, async (req, res) => {
   }
 });
 
-router.post("/meat/:meatId/join", async (req, res) => {
+router.post("/meat/:meatId/join", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
     const userId = 1;
@@ -52,7 +52,7 @@ router.post("/meat/:meatId/join", async (req, res) => {
   }
 });
 
-router.put("/meat/:meatId/unjoin", async (req, res) => {
+router.put("/meat/:meatId/unjoin", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
     const userId = 1;
@@ -63,7 +63,7 @@ router.put("/meat/:meatId/unjoin", async (req, res) => {
   }
 });
 
-router.put("/meat", async (req, res) => {
+router.put("/meat", auth, async (req, res) => {
   try {
     const meatDTO = req.body;
     const isInvalidMeatDTO = hasMissingKey(meatDTO, new MeatDTO(), [
@@ -80,7 +80,7 @@ router.put("/meat", async (req, res) => {
   }
 });
 
-router.put("/meat/:meatId/cancel", async (req, res) => {
+router.put("/meat/:meatId/cancel", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
     const mysqlResponse = await cancelMeatService(meatId);
@@ -90,7 +90,7 @@ router.put("/meat/:meatId/cancel", async (req, res) => {
   }
 });
 
-router.get("/meat/upcoming", async (req, res) => {
+router.get("/meat/upcoming", auth, async (req, res) => {
   try {
     const userId = 1;
     const result = await findUpcomingMeats(userId);
@@ -100,7 +100,7 @@ router.get("/meat/upcoming", async (req, res) => {
   }
 });
 
-router.get("/meat/:meatId", async (req, res) => {
+router.get("/meat/:meatId", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
     const result = await findOneMeatService(meatId);
