@@ -1,5 +1,8 @@
 const { connection } = require("../config/mysql");
-const { createPlaceholderString, toMysqlTimestampString } = require("../utils/mysql.utils");
+const {
+  createPlaceholderString,
+  toMysqlTimestampString,
+} = require("../utils/mysql.utils");
 const { hasMissingKey } = require("../utils/compare.utils");
 const Meat = require("../entities/meat.entity");
 const MeatStatus = require("../enums/meatStatus.enum");
@@ -36,34 +39,6 @@ function createMeat(meat) {
       ],
       (error, results, fields) => {
         error ? reject(error) : resolve(results);
-      }
-    );
-  });
-}
-
-function findOneMeat(meatId) {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      "SELECT * FROM MEAT WHERE id = ?",
-      [meatId],
-      (error, results, fields) => {
-        const result = results[0];
-        error
-          ? reject(error)
-          : resolve(
-              new Meat(
-                result.id,
-                result.image_storage_id,
-                result.title,
-                result.description,
-                result.max_participant,
-                result.start_time,
-                result.end_time,
-                result.status,
-                result.created_date,
-                result.last_modified_date
-              )
-            );
       }
     );
   });
@@ -114,11 +89,7 @@ function cancelMeat(meatId) {
       LAST_MODIFIED_DATE = ?
       WHERE ID = ?
       `,
-      [
-        MeatStatus.CANCELLED, 
-        toMysqlTimestampString(new Date()),
-        meatId,
-      ],
+      [MeatStatus.CANCELLED, toMysqlTimestampString(new Date()), meatId],
       (error, results, fields) => {
         error ? reject(error) : resolve(results);
       }
@@ -126,9 +97,75 @@ function cancelMeat(meatId) {
   });
 }
 
+function findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter(
+  meatIds,
+  status = MeatStatus.ONGOING,
+  beforeEndTime = toMysqlTimestampString(new Date())
+) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `SELECT * FROM MEAT 
+      WHERE ID IN (${createPlaceholderString(
+        meatIds.length
+      )}) AND STATUS = ? AND END_TIME > ?;
+      `,
+      [...meatIds, status, beforeEndTime],
+      (error, results, fields) => {
+        error
+          ? reject(error)
+          : resolve(
+              results.map((result) => {
+                return new Meat(
+                  result.id,
+                  result.image_storage_id,
+                  result.title,
+                  result.description,
+                  result.max_participant,
+                  result.start_time,
+                  result.end_time,
+                  result.status,
+                  result.created_date,
+                  result.last_modified_date
+                );
+              })
+            );
+      }
+    );
+  });
+}
+
+function findOneMeat(meatId) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT * FROM MEAT WHERE id = ?",
+      [meatId],
+      (error, results, fields) => {
+        const result = results[0];
+        error
+          ? reject(error)
+          : resolve(
+              new Meat(
+                result.id,
+                result.image_storage_id,
+                result.title,
+                result.description,
+                result.max_participant,
+                result.start_time,
+                result.end_time,
+                result.status,
+                result.created_date,
+                result.last_modified_date
+              )
+            );
+      }
+    );
+  });
+}
+
 module.exports = {
   createMeat,
-  findOneMeat,
   updateMeat,
-  cancelMeat
+  cancelMeat,
+  findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter,
+  findOneMeat,
 };

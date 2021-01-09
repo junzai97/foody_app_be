@@ -6,9 +6,10 @@ const {
 } = require("../services/firestore.service");
 const {
   createMeat,
-  findOneMeat,
   updateMeat,
   cancelMeat,
+  findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter,
+  findOneMeat,
 } = require("../repository/meats.repostitory");
 const {
   createStorage,
@@ -22,6 +23,7 @@ const LocationDTO = require("../dtos/locationDTO.dto");
 const {
   getMeatAnalyticsService,
   createMeatOrganiserService,
+  findGoingMeatsService,
 } = require("./meatUser.service");
 const {
   getAllMeatPreferenceService,
@@ -105,11 +107,16 @@ async function cancelMeatService(meatId) {
   return mysqlResponse;
 }
 
+async function findUpcomingMeats(userId) {
+  const goingMeatIds = await findGoingMeatsService(userId);
+  return await findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter(goingMeatIds, MeatStatus.ONGOING);
+}
+
 async function findOneMeatService(meatId) {
   const meat = await findOneMeat(meatId);
   const storage = await findOneStorage(meat.imageStorageId);
   const { data } = await findOneMeatLocationByMeatId(meatId);
-  const { totalParticipants, role } = await getMeatAnalyticsService(meatId);
+  const { totalParticipants, role, status } = await getMeatAnalyticsService(meatId);
   const preferences = await getAllMeatPreferenceService(meatId);
   const result = {
     id: meat.id,
@@ -123,6 +130,7 @@ async function findOneMeatService(meatId) {
     locationDTO: new LocationDTO(data.latitude, data.longitude),
     totalParticipants: totalParticipants,
     role: role,
+    status: status,
     preferences: preferences,
     createdDate: meat.createdDate,
     lastModifiedDate: meat.lastModifiedDate,
@@ -134,5 +142,6 @@ module.exports = {
   createMeatService,
   updateMeatService,
   cancelMeatService,
+  findUpcomingMeats,
   findOneMeatService,
 };

@@ -8,6 +8,7 @@ const {
   createMeatService,
   updateMeatService,
   cancelMeatService,
+  findUpcomingMeats,
   findOneMeatService,
 } = require("../services/meat.service");
 const BadRequestException = require("../exceptions/badRequestException.exception");
@@ -82,6 +83,16 @@ router.put("/meat/:meatId/cancel", async (req, res) => {
     const meatId = req.params.meatId;
     const mysqlResponse = await cancelMeatService(meatId);
     res.status(200).send(mysqlResponse);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/meat/upcoming", async (req, res) => {
+  try {
+    const userId = 1;
+    const result = await findUpcomingMeats(userId);
+    res.status(200).send(result);
   } catch (err) {
     handleError(res, err);
   }
