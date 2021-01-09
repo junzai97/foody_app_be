@@ -3,7 +3,7 @@ const {
   createMeatLocation,
   updateMeatLocation,
   findOneMeatLocationByMeatId,
-} = require("../services/firestore.service");
+} = require("./firestore/meatLocation.service");
 const {
   createMeat,
   updateMeat,
@@ -30,6 +30,13 @@ const {
   createMeatPreferencesService,
   updateMeatPreferencesService,
 } = require("./meatPreference.service");
+const {
+  findAllUserPreferencesService,
+} = require("../services/userPreference.service");
+const {
+  findOneUserLocationByUserId,
+} = require("../services/firestore/userLocation.service");
+const { searchNearbyMeat } = require("./nearby.service");
 
 async function createMeatService(meatDTO, userId) {
   const savedStorageResult = await createStorage(
@@ -107,6 +114,44 @@ async function cancelMeatService(meatId) {
   return mysqlResponse;
 }
 
+async function findExploreMeats(userId, preferenceIds, locationDTO) {
+  if (preferenceIds.length === 0) {
+    const preferences = await findAllUserPreferencesService(userId);
+    preferenceIds = preferences.map((preference) => preference.id);
+  }
+  if (!locationDTO) {
+    const { data } = await findOneUserLocationByUserId(userId);
+    locationDTO = new LocationDTO(data.latitude, data.longitude);
+  }
+  const meats = await searchNearbyMeat(locationDTO);
+  const matchedResult = [];
+  for (let index = 0; index < meats.length; index++) {
+    const { distanceInKm, meatId } = meats[index];
+    const preferences = await getAllMeatPreferenceService(meatId);
+    const isPreferenceMatch = preferences
+      .map((preference) => preference.id)
+      .some((value) => preferenceIds.includes(value));
+    if (isPreferenceMatch) {
+      const meat = await findOneMeat(meatId);
+      const storage = await findOneStorage(meat.imageStorageId);
+      matchedResult.push({
+        id: meat.id,
+        imageUrl: storage.mediaLink,
+        title: meat.title,
+        description: meat.description,
+        maxParticipant: meat.maxParticipant,
+        startTime: meat.startTime,
+        endTime: meat.endTime,
+        status: meat.status,
+        createdDate: meat.createdDate,
+        lastModifiedDate: meat.lastModifiedDate,
+        distanceInKm,
+      });
+    }
+  }
+  return matchedResult;
+}
+
 async function findUpcomingMeats(userId) {
   const goingMeatIds = await findGoingMeatsService(userId);
   const meats = await findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter(
@@ -165,6 +210,7 @@ module.exports = {
   createMeatService,
   updateMeatService,
   cancelMeatService,
+  findExploreMeats,
   findUpcomingMeats,
   findOneMeatService,
 };
