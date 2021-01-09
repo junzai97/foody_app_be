@@ -37,6 +37,7 @@ const {
   findOneUserLocationByUserId,
 } = require("../services/firestore/userLocation.service");
 const { searchNearbyMeat } = require("./nearby.service");
+const isBefore = require('date-fns/isBefore')
 
 async function createMeatService(meatDTO, userId) {
   const savedStorageResult = await createStorage(
@@ -131,23 +132,39 @@ async function findExploreMeats(userId, preferenceIds, locationDTO) {
     const isPreferenceMatch = preferences
       .map((preference) => preference.id)
       .some((value) => preferenceIds.includes(value));
-    if (isPreferenceMatch) {
-      const meat = await findOneMeat(meatId);
-      const storage = await findOneStorage(meat.imageStorageId);
-      matchedResult.push({
-        id: meat.id,
-        imageUrl: storage.mediaLink,
-        title: meat.title,
-        description: meat.description,
-        maxParticipant: meat.maxParticipant,
-        startTime: meat.startTime,
-        endTime: meat.endTime,
-        status: meat.status,
-        createdDate: meat.createdDate,
-        lastModifiedDate: meat.lastModifiedDate,
-        distanceInKm,
-      });
+    if (!isPreferenceMatch) {
+      continue;
     }
+    const meat = await findOneMeat(meatId);
+    const isOngoing = meat.status === MeatStatus.ONGOING;
+    if (!isOngoing) {
+      continue;
+    }
+    const isEnded = isBefore(new Date(meat.endTime), new Date());
+    if (isEnded) {
+      continue;
+    }
+    const { totalParticipants } = await getMeatAnalyticsService(
+      meatId
+    );
+    const hasVacant = totalParticipants < meat.maxParticipant;
+    if (!hasVacant) {
+      continue;
+    }
+    const storage = await findOneStorage(meat.imageStorageId);
+    matchedResult.push({
+      id: meat.id,
+      imageUrl: storage.mediaLink,
+      title: meat.title,
+      description: meat.description,
+      maxParticipant: meat.maxParticipant,
+      startTime: meat.startTime,
+      endTime: meat.endTime,
+      status: meat.status,
+      createdDate: meat.createdDate,
+      lastModifiedDate: meat.lastModifiedDate,
+      distanceInKm,
+    });
   }
   return matchedResult;
 }
