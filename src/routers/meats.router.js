@@ -42,7 +42,7 @@ router.post("/meat", auth, async (req, res) => {
 router.post("/meat/:meatId/join", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
-    const userId = 1;
+    const userId = req.user.id
     const savedResult = await createMeatParticipantService(meatId, userId);
     res
       .status(201)
