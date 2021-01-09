@@ -26,18 +26,21 @@ const {
   findGoingMeatsService,
 } = require("./meatUser.service");
 const {
-  getAllMeatPreferenceService,
   createMeatPreferencesService,
   updateMeatPreferencesService,
 } = require("./meatPreference.service");
+
 const {
-  findAllUserPreferencesService,
-} = require("../services/userPreference.service");
+  findAllMeatPreferences,
+} = require("../repository/meatPreferences.repostitory");
+const {
+  findAllUserPreferences,
+} = require("../repository/userPreferences.repostitory");
 const {
   findOneUserLocationByUserId,
 } = require("../services/firestore/userLocation.service");
 const { searchNearbyMeat } = require("./nearby.service");
-const isBefore = require('date-fns/isBefore')
+const isBefore = require("date-fns/isBefore");
 
 async function createMeatService(meatDTO, userId) {
   const savedStorageResult = await createStorage(
@@ -117,7 +120,7 @@ async function cancelMeatService(meatId) {
 
 async function findExploreMeats(userId, preferenceIds, locationDTO) {
   if (preferenceIds.length === 0) {
-    const preferences = await findAllUserPreferencesService(userId);
+    const preferences = await findAllUserPreferences(userId);
     preferenceIds = preferences.map((preference) => preference.id);
   }
   if (!locationDTO) {
@@ -128,7 +131,7 @@ async function findExploreMeats(userId, preferenceIds, locationDTO) {
   const matchedResult = [];
   for (let index = 0; index < meats.length; index++) {
     const { distanceInKm, meatId } = meats[index];
-    const preferences = await getAllMeatPreferenceService(meatId);
+    const preferences = await findAllMeatPreferences(meatId);
     const isPreferenceMatch = preferences
       .map((preference) => preference.id)
       .some((value) => preferenceIds.includes(value));
@@ -144,9 +147,7 @@ async function findExploreMeats(userId, preferenceIds, locationDTO) {
     if (isEnded) {
       continue;
     }
-    const { totalParticipants } = await getMeatAnalyticsService(
-      meatId
-    );
+    const { totalParticipants } = await getMeatAnalyticsService(meatId);
     const hasVacant = totalParticipants < meat.maxParticipant;
     if (!hasVacant) {
       continue;
@@ -202,7 +203,7 @@ async function findOneMeatService(meatId, userId) {
     meatId,
     userId
   );
-  const preferences = await getAllMeatPreferenceService(meatId);
+  const preferences = await findAllMeatPreferences(meatId);
   const result = {
     id: meat.id,
     imageUrl: storage.mediaLink,

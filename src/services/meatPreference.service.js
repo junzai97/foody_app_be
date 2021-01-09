@@ -22,7 +22,7 @@ async function createMeatPreferencesService(meatId, preferenceIds = []) {
  *
  */
 async function updateMeatPreferencesService(meatId, newPreferenceIds = []) {
-  const preferences = await getAllMeatPreferenceService(meatId);
+  const preferences = await findAllMeatPreferences(meatId);
   const existingPreferenceIds = preferences.map((preference) => preference.id);
   const needToDeletePreferenceIds = existingPreferenceIds.filter(
     (preferenceId) => !newPreferenceIds.includes(preferenceId)
@@ -42,16 +42,7 @@ async function deleteMeatPreferencesService(meatId, preferenceIds = []) {
   );
 }
 
-/**
- *
- * @returns an array of preference.entity.js, NOT meatPreference.entity.js
- */
-async function getAllMeatPreferenceService(meatId) {
-  return await findAllMeatPreferences(meatId);
-}
-
 module.exports = {
   createMeatPreferencesService,
   updateMeatPreferencesService,
-  getAllMeatPreferenceService,
 };
