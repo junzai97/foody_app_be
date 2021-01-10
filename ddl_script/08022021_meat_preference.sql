@@ -7,4 +7,5 @@ CREATE TABLE IF NOT EXISTS meat_preference (
 
     PRIMARY KEY (id),
     FOREIGN KEY (meat_id) REFERENCES meat(id) 
+    FOREIGN KEY (preference_id) REFERENCES preference(id) 
 );
