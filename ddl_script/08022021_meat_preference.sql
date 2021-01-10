@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS meat_preference (
     last_modified_date TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (meat_id) REFERENCES meat(id) 
+    FOREIGN KEY (meat_id) REFERENCES meat(id),
     FOREIGN KEY (preference_id) REFERENCES preference(id) 
 );
