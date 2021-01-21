@@ -20,7 +20,7 @@ router.post('/post', async (req, res) => {
             postDTO.price,
         );
         const result = await createPost(post);
-        res.status(200).send(`Post with id ${result.insertId} had saved successfully`);
+        res.status(201).send(`Post with id ${result.insertId} had saved successfully`);
 
     } catch (error) {
         console.log(error);
@@ -46,7 +46,7 @@ router.put('/post', async (req, res) => {
     try {
         var post = new Post(
             postDTO.id,
-            postDTO.user_id, 
+            postDTO.user_id,
             postDTO.description,
             postDTO.services,
             postDTO.cleanliness,
@@ -55,7 +55,7 @@ router.put('/post', async (req, res) => {
         );
         const result = await updatePost(post);
         
-        res.status(200).send('Post had updated successfully.');
+        res.status(201).send('Post had updated successfully.');
 
     } catch (error) {
         console.log(error);
