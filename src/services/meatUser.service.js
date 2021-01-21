@@ -3,7 +3,7 @@ const {
   updateMeatUserStatus,
   findAllMeatUserByMeatId,
   findAllMeatUserByUserIdAndStatus,
-} = require("../repository/meatUsers.repostitory");
+} = require("../repository/meatUsers.repository");
 const MeatUserRole = require("../enums/meatUserRole.enum");
 const MeatUserStatus = require("../enums/meatUserStatus.enum");
 

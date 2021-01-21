@@ -2,7 +2,7 @@ const {
   createMeatPreference,
   findAllMeatPreferences,
   deleteMeatPreference,
-} = require("../repository/meatPreferences.repostitory");
+} = require("../repository/meatPreferences.repository");
 
 async function createMeatPreferencesService(meatId, preferenceIds = []) {
   return await Promise.all(

@@ -10,11 +10,11 @@ const {
   cancelMeat,
   findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter,
   findOneMeat,
-} = require("../repository/meats.repostitory");
+} = require("../repository/meats.repository");
 const {
   createStorage,
   findOneStorage,
-} = require("../repository/storage.repostitory");
+} = require("../repository/storage.repository");
 const Meat = require("../entities/meat.entity");
 const MeatStatus = require("../enums/meatStatus.enum");
 const AttachmentType = require("../enums/attachmentType.enum");
@@ -32,10 +32,10 @@ const {
 
 const {
   findAllMeatPreferences,
-} = require("../repository/meatPreferences.repostitory");
+} = require("../repository/meatPreferences.repository");
 const {
   findAllUserPreferences,
-} = require("../repository/userPreferences.repostitory");
+} = require("../repository/userPreferences.repository");
 const {
   findOneUserLocationByUserId,
 } = require("../services/firestore/userLocation.service");

@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 
 const { toMysqlTimestampString } = require('../utils/mysql.utils');
-const { createUser, getUserWithEmail, getUserWithUsername, updateUserDetails} = require('../repository/users.repostitory')
-const { createStorage } = require('../repository/storage.repostitory');
+const { createUser, getUserWithEmail, getUserWithUsername, updateUserDetails, getUserLikeUsername, getUserWithId} = require('../repository/users.repository')
+const { createStorage } = require('../repository/storage.repository');
 const { hasMissingKey } = require("../utils/compare.utils");
 const User = require('../entities/user.entity');
 const UserDTO = require('../dtos/userDTO.dto');

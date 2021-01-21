@@ -45,6 +45,14 @@ function getUserWithUsername(username){
     })
 }
 
+function getUserLikeUsername(username){
+    return new Promise((resolve, reject) => {
+        connection.query("SELECT id, username, image_storage_id FROM user WHERE username LIKE ?", ["%" + username + "%"], (error, results, fields) => {
+            error? reject(error): resolve(results);
+        } )
+    })
+}
+
 function getUserWithId(id){
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM user WHERE id = ?', [id], (error, results, fields) => {
@@ -74,6 +82,7 @@ module.exports = {
     createUser,
     getUserWithEmail,
     getUserWithUsername,
+    getUserLikeUsername,
     getUserWithId,
     updateUserDetails
 }
