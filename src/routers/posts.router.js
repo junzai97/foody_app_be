@@ -3,12 +3,17 @@ const Post = require('../entities/post.entity');
 const { createPost, readPosts, updatePost, deletePost } = require('../repository/posts.repository');
 const PostDTO = require('../dtos/postDTO.dto');
 const { route } = require('./index.router');
+const { hasMissingKey } = require('../utils/compare.utils');
 const router = express.Router();
 
 //CREATE YOUR REST API UNDER HERE
+
 // Create A Post
 router.post('/post', async (req, res) => {
     const postDTO = req.body;
+    if(hasMissingKey(postDTO, new postDTO)){
+        res.status(400).send("Bad request for postDTO");
+    }
     try {
         var post = new Post(
             null,

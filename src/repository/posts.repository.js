@@ -4,8 +4,12 @@ const { auth,db } = require('../config/firebase');
 const Post = require('../entities/post.entity');
 const { InvalidEntity } = require('../exceptions/InvalidEntity.exception');
 const { createPlaceholderString } = require('../utils/mysql.utils');
+const { hasMissingKey } = require('../utils/compare.utils');
 
 function createPost(post){
+    if(hasMissingKey(post, new Post())){
+        throw new Error("Cannot save invalid Post object to DB");
+    }
     return new Promise((resolve, reject)=>{
         connection.query(
             `INSERT INTO post VALUES (${createPlaceholderString(9)})`,
