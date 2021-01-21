@@ -14,7 +14,10 @@ const auth = require('../middleware/auth.middleware')
 router.post('/friends/:userId', auth, async (req, res) => {  
     try{
         const followerUserId = req.user.id;
-        const followingUserId = parseInt(req.params.userId);
+        const followingUserId = req.params.userId;
+        if(followerUserId == followingUserId){
+            res.status(400).send("User cannot follow own account")
+        }
         const following = new Following(
             null,
             followerUserId,
@@ -22,7 +25,7 @@ router.post('/friends/:userId', auth, async (req, res) => {
             toMysqlTimestampString(new Date())
         )
         const savedResult = await createFollowing(following);
-        res.status(201).send(`Following with id ${savedResult.insertId} saved succesfully`);
+        res.status(201).send(`Following with id ${savedResult.insertId} saved successfully`);
     }catch(err){
         res.status(500).send(err);
     }
@@ -36,8 +39,8 @@ router.delete('/friends/:userId', auth, async (req, res) => {
         const followerUserId = req.user.id;
         const followingUserId = req.params.userId;
 
-        const removedResult = await deleteFollowing(followerUserId, followingUserId );
-        res.status(201).send(removedResult);
+        await deleteFollowing(followerUserId, followingUserId );
+        res.status(201).send("Unfollowed");
     }catch(err){
         res.status(500).send(err);
     }
