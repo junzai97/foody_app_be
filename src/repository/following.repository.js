@@ -36,6 +36,20 @@ function deleteFollowing(followerUserId, followingUserId){
     })
 }
 
+//Get following with follower_user_id and following_user_id
+function getFollowingWithUsersId(followerUserId, followingUserId){
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT * FROM following WHERE follower_user_id = ? AND following_user_id = ?`, 
+            [followerUserId, followingUserId],
+            (error, results, fields) => {
+                const result = results[0];
+                error? reject(error): resolve(result);
+            }
+        )
+    })
+}
+
 //Get all following user
 function getAllFollowingUsers(userId){
     return new Promise((resolve, reject) => {
@@ -84,6 +98,7 @@ function getUserFollowingCount(userId){
 module.exports = {
     createFollowing,
     getAllFollowingUsers,
+    getFollowingWithUsersId,
     getUserFollowerCount,
     getUserFollowingCount,
     deleteFollowing

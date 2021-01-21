@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { toMysqlTimestampString } = require('../utils/mysql.utils');
 const { createUser, getUserWithEmail, getUserWithUsername, updateUserDetails, getUserLikeUsername, getUserWithId} = require('../repository/users.repository');
-const { createFollowing, getAllFollowingUsers, getUserFollowerCount, getUserFollowingCount, deleteFollowing} = require('../repository/following.repository');
+const { createFollowing, getAllFollowingUsers, getFollowingWithUsersId, getUserFollowerCount, getUserFollowingCount, deleteFollowing} = require('../repository/following.repository');
 const { hasMissingKey } = require("../utils/compare.utils");
 const Following = require('../entities/following.entity');
 const auth = require('../middleware/auth.middleware')
@@ -76,6 +76,7 @@ router.get('/friends/search', auth, async (req,res) => {
  */
 router.get('/friends/:userId', auth, async (req, res) => {
     try{
+        const ownId = req.user.id;
         const userId = req.params.userId;
         const user = await getUserWithId(userId);
         if(user === undefined){
@@ -83,13 +84,17 @@ router.get('/friends/:userId', auth, async (req, res) => {
         }
         const userFollowingCount = await getUserFollowingCount(userId);
         const userFollowerCount = await getUserFollowerCount(userId);
+        const following = await getFollowingWithUsersId(ownId, userId)  
+        const isFollowing = (following !== undefined)? true: false;
+
         res.status(200).send({
             username: user.username,
             imageStorageId: user.image_storage_id,
             gender: user.gender,
             biography: user.biography,
             followingCount: userFollowingCount.followingCount,
-            followerCount: userFollowerCount.followerCount
+            followerCount: userFollowerCount.followerCount,
+            isFollowing
         })
     }catch(err){
         res.status(400).send(err);
