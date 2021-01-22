@@ -2,9 +2,13 @@
 ### Set up the backend
 1. Clone the project to local.
 2. run `npm install` in the project root directory.
-3. Create a .env file in the project root directory.
-4. Add DB_USER and DB_PASS based on your MYSQL username and password respectively in your .env file  
-(Kindly refer to https://www.npmjs.com/package/dotenv)  
+3. Create a **.env** file in the project root directory.
+4. Insert following keys with it respective value in the **.env file** (Kindly refer to https://www.npmjs.com/package/dotenv)   
+  ```
+  DB_USER=<Your MYSQL username> 
+  DB_PASS=<Your MYSQL pasword>
+  JWT_SECRET=<Random value to used for generate JWT token>
+  ```  
 
 ### Set up MySQL Server
 1. Download MYSQL Server from https://dev.mysql.com/downloads/ (Select `MySQL Installer for Windows` if using Window OS)

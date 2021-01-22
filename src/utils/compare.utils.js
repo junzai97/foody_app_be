@@ -3,13 +3,13 @@
  * @example 
  * actual = {"key1": 1}
  * expected = {"key2": 1}
- * will return false
+ * will return true, means has missing keys
  * 
  * @example
  * actual = {"key1": 1}
  * expected = {"key2": 1}
  * ignoredKeys = ["key2"]
- * will return true
+ * will return false, means no missing keys
  */
 function hasMissingKey(actual, expected, ignoredKeys = []) {
   if (!isObject(expected)) {
