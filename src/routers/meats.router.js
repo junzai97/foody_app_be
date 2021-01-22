@@ -32,9 +32,9 @@ router.post("/meat", auth, async (req, res) => {
       throw new BadRequestException("invalid request body");
     }
     const savedResult = await createMeatService(meatDTO, userId);
-    res
-      .status(201)
-      .send(`Meat with id ${savedResult.insertId} saved succesfully`);
+    res.status(201).send({
+      meatId: savedResult.insertId,
+    });
   } catch (err) {
     handleError(res, err);
   }
@@ -45,9 +45,9 @@ router.post("/meat/:meatId/join", auth, async (req, res) => {
     const meatId = req.params.meatId;
     const userId = req.user.id;
     const savedResult = await createMeatParticipantService(meatId, userId);
-    res
-      .status(201)
-      .send(`MeatUser with id ${savedResult.insertId} saved succesfully`);
+    res.status(201).send({
+      meatId: meatId,
+    });
   } catch (err) {
     handleError(res, err);
   }
@@ -58,7 +58,9 @@ router.put("/meat/:meatId/unjoin", auth, async (req, res) => {
     const meatId = req.params.meatId;
     const userId = req.user.id;
     const mysqlResponse = await notComingMeatService(meatId, userId);
-    res.status(200).send(mysqlResponse);
+    res.status(200).send({
+      meatId: meatId,
+    });
   } catch (err) {
     handleError(res, err);
   }
@@ -75,7 +77,9 @@ router.put("/meat", auth, async (req, res) => {
       throw new BadRequestException("invalid request body");
     }
     const mysqlResponse = await updateMeatService(meatDTO);
-    res.status(200).send(mysqlResponse);
+    res.status(200).send({
+      meatId: meatDTO.id,
+    });
   } catch (err) {
     handleError(res, err);
   }
@@ -85,7 +89,9 @@ router.put("/meat/:meatId/cancel", auth, async (req, res) => {
   try {
     const meatId = req.params.meatId;
     const mysqlResponse = await cancelMeatService(meatId);
-    res.status(200).send(mysqlResponse);
+    res.status(200).send({
+      meatId: meatId,
+    });
   } catch (err) {
     handleError(res, err);
   }
@@ -103,7 +109,7 @@ router.get("/meat/explore", auth, async (req, res) => {
     } else if (!isNaN(parseInt(preferenceId))) {
       preferenceIds = [preferenceId];
     }
-    
+
     //handle location
     const latitude = parseFloat(req.query.latitude);
     const longitude = parseFloat(req.query.longitude);
