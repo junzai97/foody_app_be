@@ -1,16 +1,12 @@
 const { toMysqlTimestampString } = require("../utils/mysql.utils");
 const {
-  createMeatLocation,
-  updateMeatLocation,
-  findOneMeatLocationByMeatId,
-} = require("./firestore/meatLocation.service");
-const {
   createMeat,
   updateMeat,
   cancelMeat,
   findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter,
   findOneMeat,
 } = require("../repository/meats.repostitory");
+const { createLocation } = require("../repository/location.repostitory");
 const {
   createStorage,
   findOneStorage,
@@ -41,6 +37,11 @@ const {
 } = require("../services/firestore/userLocation.service");
 const { searchNearbyMeat } = require("./nearby.service");
 const isBefore = require("date-fns/isBefore");
+const {
+  createMeatLocation,
+  updateMeatLocationByMeatId,
+  findOneLocationByMeatId,
+} = require("../repository/meatLocation.repostitory");
 
 async function createMeatService(meatDTO, userId) {
   const savedStorageResult = await createStorage(
@@ -65,7 +66,10 @@ async function createMeatService(meatDTO, userId) {
     meatId,
     meatDTO.preferenceIds
   );
-  const firestoreData = await createMeatLocation(meatId, meatDTO.locationDTO);
+  const locationMysqlRes = await createLocation(meatDTO.locationDTO);
+  const locationId = locationMysqlRes.insertId;
+  const meatLocationMysqlRes = await createMeatLocation(meatId, locationId);
+  const meatLocationId = meatLocationMysqlRes.insertId;
   const meatUserMysqlResponse = await createMeatOrganiserService(
     meatId,
     userId
@@ -102,10 +106,14 @@ async function updateMeatService(meatDTO) {
   await updateMeatPreferencesService(originalMeat.id, meatDTO.preferenceIds);
   if (meatDTO.locationDTO) {
     // only update locationDTO if exist
-    const updatedFirestoreData = await updateMeatLocation(
-      meatDTO.id,
-      meatDTO.locationDTO
-    );
+    const locationMysqlRes = await createLocation(meatDTO.locationDTO);
+    const locationId = locationMysqlRes.insertId;
+    const meatLocationMysqlRes = await updateMeatLocationByMeatId(meatDTO.id, locationId);
+    if (meatLocationMysqlRes.affectedRows < 1) {
+      throw new BadRequestException(
+        "no meatLocation is updated. Is meatLocation exist?"
+      );
+    }
   }
   return mysqlResponse;
 }
@@ -198,7 +206,7 @@ async function findUpcomingMeats(userId) {
 async function findOneMeatService(meatId, userId) {
   const meat = await findOneMeat(meatId);
   const storage = await findOneStorage(meat.imageStorageId);
-  const { data } = await findOneMeatLocationByMeatId(meatId);
+  const locationDTO = await findOneLocationByMeatId(meatId);
   const { totalParticipants, role, status } = await getMeatAnalyticsService(
     meatId,
     userId
@@ -213,7 +221,7 @@ async function findOneMeatService(meatId, userId) {
     startTime: meat.startTime,
     endTime: meat.endTime,
     status: meat.status,
-    locationDTO: new LocationDTO(data.latitude, data.longitude),
+    locationDTO: locationDTO,
     totalParticipants: totalParticipants,
     role: role,
     status: status,
