@@ -35,7 +35,7 @@ const {
 const {
   findOneUserLocationByUserId,
 } = require("../services/firestore/userLocation.service");
-const { searchNearbyMeat } = require("./nearby.service");
+const { searchNearbyMeat } = require("../repository/meatLocation.repostitory");
 const isBefore = require("date-fns/isBefore");
 const {
   createMeatLocation,
@@ -132,8 +132,7 @@ async function findExploreMeats(userId, preferenceIds, locationDTO) {
     preferenceIds = preferences.map((preference) => preference.id);
   }
   if (!locationDTO) {
-    const { data } = await findOneUserLocationByUserId(userId);
-    locationDTO = new LocationDTO(data.latitude, data.longitude);
+    const locationDTO = await findOneLocationByUserId(userId);
   }
   const meats = await searchNearbyMeat(locationDTO);
   const matchedResult = [];
