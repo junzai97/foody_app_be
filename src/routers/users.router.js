@@ -27,6 +27,7 @@ router.post('/users', async (req,res) => {
     
     try {
 
+        const username = registerDTO.username.toLowerCase();
         //Check whether the email existed
         const existingEmail = await getUserWithEmail(registerDTO.email);
         if(existingEmail){
@@ -34,7 +35,7 @@ router.post('/users', async (req,res) => {
         }
 
         //Check whether the username existed
-        const existingUsername = await getUserWithUsername(registerDTO.username);
+        const existingUsername = await getUserWithUsername(username);
         if(existingUsername){
             return res.status(400).send({error: "Username has been taken"});
         }
@@ -42,7 +43,7 @@ router.post('/users', async (req,res) => {
         const user = new User(
             null,
             null,
-            registerDTO.username,
+            username,
             registerDTO.email,
             registerDTO.password,
             null,
@@ -82,7 +83,7 @@ router.patch('/users/me',auth, async (req, res) => {
         
         const user = {
             id: req.user.id,
-            imageStorageId : savedStorageResult.id,
+            imageStorageId : savedStorageResult.insertId,
             gender : userDetailsDTO.gender,
             biography: userDetailsDTO.biography,
             lastModifiedDate: toMysqlTimestampString(new Date()),

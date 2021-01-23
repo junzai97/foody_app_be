@@ -47,7 +47,12 @@ function getUserWithUsername(username){
 
 function getUserLikeUsername(username){
     return new Promise((resolve, reject) => {
-        connection.query("SELECT id, username, image_storage_id FROM user WHERE username LIKE ?", ["%" + username + "%"], (error, results, fields) => {
+        connection.query(`
+        SELECT U.id, U.username, S.media_link 
+        FROM user AS U
+        LEFT JOIN storage AS S ON U.image_storage_id = S.id
+        WHERE U.username LIKE ?`,
+        ["%" + username + "%"], (error, results, fields) => {
             error? reject(error): resolve(results);
         } )
     })

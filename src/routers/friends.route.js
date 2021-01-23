@@ -104,6 +104,4 @@ router.get('/friends/:userId', auth, async (req, res) => {
     }
 })
 
-
-
 module.exports = router;
