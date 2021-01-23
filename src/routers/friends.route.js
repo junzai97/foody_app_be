@@ -92,7 +92,7 @@ router.get('/friends/:userId', auth, async (req, res) => {
 
         res.status(200).send({
             username: user.username,
-            imageStorageId: user.image_storage_id,
+            imageUrl: user.media_link,
             gender: user.gender,
             biography: user.biography,
             followingCount: userFollowingCount.followingCount,
