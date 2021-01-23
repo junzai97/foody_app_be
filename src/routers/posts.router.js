@@ -4,14 +4,15 @@ const { createPost, readPosts, updatePost, deletePost } = require('../repository
 const PostDTO = require('../dtos/postDTO.dto');
 const { route } = require('./index.router');
 const { hasMissingKey } = require('../utils/compare.utils');
+const auth = require("../middleware/auth.middleware");
 const router = express.Router();
 
 //CREATE YOUR REST API UNDER HERE
 
 // Create A Post
-router.post('/post', async (req, res) => {
+router.post('/post', auth, async (req, res) => {
     const postDTO = req.body;
-    if(hasMissingKey(postDTO, new postDTO)){
+    if(hasMissingKey(postDTO, new PostDTO())){
         res.status(400).send("Bad request for postDTO");
     }
     try {
@@ -34,10 +35,10 @@ router.post('/post', async (req, res) => {
 })
 
 // Read A Post
-router.get('/post', async (req, res) => {
+router.get('/post', auth, async (req, res) => {
     const postDTO = req.body;
     try {
-        var post = await readPosts(postDTO.user_id);
+        var post = await readPosts(req.user.id);
         res.status(200).send(post);
     } catch (error) {
         console.log(error);
