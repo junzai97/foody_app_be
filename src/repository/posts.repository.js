@@ -33,7 +33,15 @@ function createPost(post){
 
 function readPosts(user_id){
     return new Promise ((resolve, reject) => {
-        connection.query('SELECT * FROM post WHERE user_id = ?', [user_id], (error, results, fields) => {
+        connection.query(`
+            SELECT followings.username, post.*
+            FROM following
+            LEFT JOIN user ON user.id = following.follower_user_id
+            LEFT JOIN user as followings ON followings.id = following.following_user_id
+            LEFT JOIN post ON post.user_id = following.following_user_id
+            WHERE user.id = ?
+            ORDER BY post.created_date DESC`, [user_id], 
+                (error, results, fields) => {
             error? reject(error):resolve(results);
         }) 
     }) 
@@ -53,9 +61,9 @@ function updatePost(post){
    
     return new Promise((resolve, reject) => {
         connection.query(
-            `UPDATE post ` +
-            `SET description = ?, services = ?, cleanliness = ?, taste = ?, price = ?, last_modified_date = ? ` + 
-            `WHERE id = ?;`,
+            `UPDATE post 
+            SET description = ?, services = ?, cleanliness = ?, taste = ?, price = ?, last_modified_date = ? 
+            WHERE id = ?;`,
         [post.description, post.services, post.cleanliness, post.taste, post.price, now, post.id],
         (error, results, fields) => { 
             error ? reject(error) : resolve(results);
