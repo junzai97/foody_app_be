@@ -1,10 +1,12 @@
 const express = require('express');
 const Post = require('../entities/post.entity');
-const { createPost, readPosts, updatePost, deletePost } = require('../repository/posts.repository');
+const PostStorage = require('../entities/post_storage.entity');
+const { createPost, readPosts, updatePost, deletePost, insertPostImage } = require('../repository/posts.repository');
 const PostDTO = require('../dtos/postDTO.dto');
 const { route } = require('./index.router');
 const { hasMissingKey } = require('../utils/compare.utils');
 const auth = require("../middleware/auth.middleware");
+const { createStorage } = require("../repository/storage.repostitory");
 const router = express.Router();
 
 //CREATE YOUR REST API UNDER HERE
@@ -19,13 +21,22 @@ router.post('/post', auth, async (req, res) => {
         var post = new Post(
             null,
             postDTO.user_id,
+            null,
+            postDTO.images,
             postDTO.description,
             postDTO.services,
             postDTO.cleanliness,
             postDTO.taste,
             postDTO.price,
         );
-        const result = await createPost(post);
+        const postResult = await createPost(post);
+        const storage = await createStorage(postDTO.images);
+        var post_storage  = new PostStorage(
+            null, 
+            postResult.insertId,
+            storage.insertId,
+        )
+        const result = await insertPostImage(post_storage);
         res.status(201).send(`Post with id ${result.insertId} had saved successfully`);
 
     } catch (error) {

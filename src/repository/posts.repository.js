@@ -7,10 +7,11 @@ const { createPlaceholderString } = require('../utils/mysql.utils');
 const { hasMissingKey } = require('../utils/compare.utils');
 
 function createPost(post){
-    if(hasMissingKey(post, new Post())){
+    if(hasMissingKey(post, new Post(), ["username"])){
         throw new Error("Cannot save invalid Post object to DB");
     }
     return new Promise((resolve, reject)=>{
+        console.log(post);
         connection.query(
             `INSERT INTO post VALUES (${createPlaceholderString(9)})`,
             [
@@ -21,8 +22,8 @@ function createPost(post){
                 post.cleanliness,
                 post.taste,
                 post.price,
-                post.createdDate,
-                post.lastModifiedDate,
+                new Date(),
+                new Date(),
             ], 
             (error, results, fields) => {
                 error? reject(error):resolve(results);
@@ -34,11 +35,13 @@ function createPost(post){
 function readPosts(user_id){
     return new Promise ((resolve, reject) => {
         connection.query(`
-            SELECT followings.username, post.*
+            SELECT followings.username, post.*, storage.media_link
             FROM following
             LEFT JOIN user ON user.id = following.follower_user_id
             LEFT JOIN user as followings ON followings.id = following.following_user_id
             LEFT JOIN post ON post.user_id = following.following_user_id
+            LEFT JOIN post_storage ON post_storage.post_id = post.id
+            LEFT JOIN storage ON storage.id = post_storage.id
             WHERE user.id = ?
             ORDER BY post.created_date DESC`, [user_id], 
                 (error, results, fields) => {
@@ -81,10 +84,26 @@ function deletePost(post){
     })
 }
 
+function insertPostImage(image){
+    return new Promise((resolve, reject)=>{
+        connection.query(`INSERT INTO post_storage VALUES(${createPlaceholderString(5)})`,
+        [
+            image.id,
+            image.post_id,
+            image.storage_id, 
+            new Date(),
+            new Date(),
+        ],(error, results, fields) => {
+            error ? reject(error) : resolve(results);
+        });
+    });
+}
+
 module.exports = {
     createPost,
     readPost,
     readPosts,
     updatePost,
-    deletePost
+    deletePost,
+    insertPostImage
 }

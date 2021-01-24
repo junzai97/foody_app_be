@@ -2,6 +2,7 @@ function Post(
     id,
     user_id,
     username,
+    images,
     description,
     services,
     cleanliness,
@@ -13,6 +14,7 @@ function Post(
     this.id = id;
     this.user_id = user_id;
     this.username = username;
+    this.images = images;
     this.description = description;
     this.services = services;
     this.cleanliness = cleanliness;
