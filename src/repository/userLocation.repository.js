@@ -13,8 +13,12 @@ function findOneLocationByUserId(userId) {
       where ul.user_id = ?`,
       [userId],
       (error, results, fields) => {
+        if (results.length === 0) {
+          resolve(null);
+          return;
+        }
         const result = results[0];
-        // console.log(result);
+        console.log(result);
         error
           ? reject(error)
           : resolve(

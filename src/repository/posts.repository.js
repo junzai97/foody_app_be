@@ -64,10 +64,10 @@ function getSuggestionPostsWithPostId(postId){
             LEFT JOIN storage ON storage.id = post_storage.id
             LEFT JOIN post_location ON post_location.post_id = post.id
             LEFT JOIN foodie_location ON foodie_location.id = post_location.location_id
-            WHERE post.id = ?)
+            WHERE post.id = ?
             `, [postId], 
                 (error, results, fields) => {
-            error? reject(error):resolve(results);
+            error? reject(error):resolve(results[0]);
         }) 
     }) 
 }

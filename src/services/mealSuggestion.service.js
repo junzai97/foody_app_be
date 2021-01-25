@@ -25,11 +25,11 @@ async function findMealSuggestion(userId, locationDTO) {
       // }
 
     const posts = await searchNearbyPost(locationDTO);
-    console.log(posts.length," nearby posts");
+    // console.log(posts.length," nearby posts");
     const matchedResult = [];
     for (let index = 0; index < posts.length; index++) {
       const { distanceInKm, postId } = posts[index];
-      const postDetails = getSuggestionPostsWithPostId(postId)
+      const postDetails = await getSuggestionPostsWithPostId(postId)
 
       matchedResult.push({
         ...postDetails,
