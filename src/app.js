@@ -5,7 +5,6 @@ const userRouter = require('./routers/users.router');
 const meatRouter = require('./routers/meats.router');
 const preferenceRouter = require('./routers/preferences.router');
 const friendRouter = require('./routers/friends.router')
-
 const postRouter = require('./routers/posts.router');
 const commentRouter = require('./routers/comments.router');
 const bodyParser = require("body-parser");

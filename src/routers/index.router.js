@@ -2,13 +2,8 @@ const express = require("express");
 const LocationDTO = require("../dtos/locationDTO.dto");
 const FirestoreType = require("../enums/firestoreType.enum");
 const router = express.Router();
-<<<<<<< HEAD
-const { createStorage } = require("../repository/storage.repostitory");
-const { searchNearbyMeat } = require("../repository/meatLocation.repostitory");
-=======
 const { createStorage } = require("../repository/storage.repository");
 const { searchNearbyMeat } = require("../services/nearby.service");
->>>>>>> friends_module
 
 router.get("/demo/upload", async (req, res) => {
   const base64String =

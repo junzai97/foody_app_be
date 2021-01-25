@@ -5,12 +5,7 @@ const {
   cancelMeat,
   findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter,
   findOneMeat,
-<<<<<<< HEAD
-} = require("../repository/meats.repostitory");
-const { createLocation } = require("../repository/location.repostitory");
-=======
 } = require("../repository/meats.repository");
->>>>>>> friends_module
 const {
   createStorage,
   findOneStorage,
