@@ -20,7 +20,7 @@ const {
 } = require("../services/meatUser.service");
 const {
   findAllMeatUsersByMeatIdAndMeatUserStatus,
-} = require("../repository/meatUsers.repostitory");
+} = require("../repository/meatUsers.repository");
 
 router.post("/meat", auth, async (req, res) => {
   try {
