@@ -12,13 +12,13 @@ const { getDistanceFromLatLonInKm } = require("../utils/location.utils");
 function createPostLocation(postId, locationId) {
     return new Promise((resolve, reject) => {
         connection.query(
-        `INSERT INTO POST_LOCATION (
-          ID,
-          POST_ID,
-          LOCATION_ID,
-          CREATED_DATE,
-          LAST_MODIFIED_DATE
-        ) VALUES (${createPlaceholderString(5)})`,
+            `INSERT INTO POST_LOCATION (
+            ID,
+            POST_ID,
+            LOCATION_ID,
+            CREATED_DATE,
+            LAST_MODIFIED_DATE
+            ) VALUES (${createPlaceholderString(5)})`,
             [
                 null,
                 postId,
@@ -65,8 +65,8 @@ function findOneLocationByPostId(postId) {
 // Search Nearby Post
 function searchNearbyPost(
     locationDTO,
-    nearbyPrecision = NearbyPrecision.in20000m
-  ) {
+    nearbyPrecision = NearbyPrecision.in80000m
+) {
     const centerGeohash = geohash.encode(
         locationDTO.latitude,
         locationDTO.longitude
@@ -74,9 +74,11 @@ function searchNearbyPost(
     const startWithHash = centerGeohash.substring(0, nearbyPrecision);
     return new Promise((resolve, reject) => {
         connection.query(
-        `SELECT l.*, ml.meat_id FROM post_location as pl
-        left join foodie_location as l on pl.location_id = l.id
-        where l.geohash like concat(?, '%')`,
+        `SELECT L.*, PL.post_id FROM post_location AS PL 
+        LEFT JOIN foodie_location AS L ON PL.location_id = L.id
+        WHERE L.geohash LIKE concat(?, '%')
+        ORDER BY RAND()
+        LIMIT 5`,
         [startWithHash],
         (error, results, fields) => {
             error
@@ -98,7 +100,7 @@ function searchNearbyPost(
         );
     });
 }
-  
+
 module.exports = {
     createPostLocation,
     findOneLocationByPostId,
