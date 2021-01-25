@@ -1,5 +1,33 @@
 const { connection } = require("../config/mysql");
 const LocationDTO = require("../dtos/locationDTO.dto");
+const {
+  createPlaceholderString,
+  toMysqlTimestampString,
+} = require("../utils/mysql.utils");
+
+function createUserLocation(userId, locationId) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `INSERT INTO USER_LOCATION (
+          ID,
+          USER_ID,
+          LOCATION_ID,
+          CREATED_DATE,
+          LAST_MODIFIED_DATE
+        ) VALUES (${createPlaceholderString(5)})`,
+      [
+        null,
+        userId,
+        locationId,
+        toMysqlTimestampString(new Date()),
+        toMysqlTimestampString(new Date()),
+      ],
+      (error, results, fields) => {
+        error ? reject(error) : resolve(results);
+      }
+    );
+  });
+}
 
 /**
  *
@@ -31,5 +59,6 @@ function findOneLocationByUserId(userId) {
 }
 
 module.exports = {
+  createUserLocation,
   findOneLocationByUserId,
 };
