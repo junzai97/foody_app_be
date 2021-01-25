@@ -3,7 +3,6 @@ const LocationDTO = require("../dtos/locationDTO.dto");
 const FirestoreType = require("../enums/firestoreType.enum");
 const router = express.Router();
 const { createStorage } = require("../repository/storage.repository");
-const { searchNearbyMeat } = require("../services/nearby.service");
 
 router.get("/demo/upload", async (req, res) => {
   const base64String =
