@@ -3,7 +3,7 @@ const {
   createPlaceholderString,
   toMysqlTimestampString,
 } = require("../utils/mysql.utils");
-const Preference = require("../entities/meatPreference.entity");
+const Preference = require("../entities/Preference.entity");
 
 function createMeatPreference(meatId, preferenceId) {
   return new Promise((resolve, reject) => {

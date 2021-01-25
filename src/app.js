@@ -3,6 +3,8 @@ require('./config/mysql');
 const indexRouter = require('./routers/index.router');
 const userRouter = require('./routers/users.router');
 const meatRouter = require('./routers/meats.router');
+const preferenceRouter = require('./routers/preferences.router');
+
 const postRouter = require('./routers/posts.router');
 const commentRouter = require('./routers/comments.router');
 const bodyParser = require("body-parser");
@@ -15,6 +17,7 @@ app.use(bodyParser.text({ limit: '200mb' }));
 app.use(indexRouter);
 app.use(userRouter);
 app.use(meatRouter);
+app.use(preferenceRouter);
 app.use(postRouter);
 app.use(commentRouter);
 
