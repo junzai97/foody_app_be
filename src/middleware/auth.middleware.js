@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { getUserWithId } = require('../repository/users.repostitory')
+const { getUserWithId } = require('../repository/users.repository')
 
 const auth = async (req, res, next) => {
     try {

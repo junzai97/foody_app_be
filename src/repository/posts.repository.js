@@ -99,11 +99,42 @@ function insertPostImage(image){
     });
 }
 
+//Get post count with user id
+function getPostCountWithUserId(userId){
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT COUNT(id) AS postCount FROM post WHERE user_id = ?`, [userId],
+        (error, results, field) => {
+            const postCount = results[0]
+            error? reject(error): resolve(postCount);
+        })
+    })
+}
+
+//Get user posts details for grid view
+function getGridViewPostWithUserId(userId){
+    return new Promise((resolve, reject) => {
+        connection.query(`
+            SELECT P.id, S.media_link 
+            FROM post AS P
+            INNER JOIN post_storage AS PS 
+            ON P.id = PS.post_id
+            INNER JOIN storage as S
+            ON PS.storage_id = S.id
+            WHERE P.user_id = ?`, 
+            [userId],
+            (error, results, field)=> {
+                error? reject(error): resolve(results);
+            })
+    })
+}
+
 module.exports = {
     createPost,
     readPost,
     readPosts,
     updatePost,
     deletePost,
-    insertPostImage
+    insertPostImage,
+    getPostCountWithUserId,
+    getGridViewPostWithUserId
 }

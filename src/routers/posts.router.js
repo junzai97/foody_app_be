@@ -1,12 +1,12 @@
 const express = require('express');
 const Post = require('../entities/post.entity');
 const PostStorage = require('../entities/post_storage.entity');
-const { createPost, readPosts, updatePost, deletePost, insertPostImage } = require('../repository/posts.repository');
+const { createPost, readPosts, updatePost, deletePost, insertPostImage, getGridViewPostWithUserId } = require('../repository/posts.repository');
 const PostDTO = require('../dtos/postDTO.dto');
 const { route } = require('./index.router');
 const { hasMissingKey } = require('../utils/compare.utils');
 const auth = require("../middleware/auth.middleware");
-const { createStorage } = require("../repository/storage.repostitory");
+const { createStorage } = require("../repository/storage.repository");
 const router = express.Router();
 
 //CREATE YOUR REST API UNDER HERE
@@ -98,4 +98,14 @@ router.delete('/post', async (req, res) => {
     }
 })
 
+//Get Grid Post
+router.get('/post/grid/:userId', auth, async (req, res) => {
+    const userId = req.params.userId;
+    try{
+        const posts = await getGridViewPostWithUserId(userId);
+        res.status(200).send(posts);
+    } catch (err) {
+        res.status(400).send(err);
+    }
+})
 module.exports = router;
