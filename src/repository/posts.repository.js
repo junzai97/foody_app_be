@@ -150,6 +150,11 @@ function getGridViewPostWithUserId(userId){
         }
     )
 }    
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> e9c073166930e8c5c38ebc0c525c83c29d04957a
 
 function getLike(postId, userId){
     return new Promise((resolve, reject)=>{

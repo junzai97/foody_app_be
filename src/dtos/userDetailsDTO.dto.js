@@ -1,11 +1,8 @@
-function userDetailsDTO(
-    base64String,
-    gender,
-    biography
-){
-    this.base64String = base64String,
-    this.gender = gender,
-    this.biography = biography
+function userDetailsDTO(biography, locationDTO, base64String, preferenceIds) {
+  (this.biography = biography),
+    (this.locationDTO = locationDTO),
+    (this.base64String = base64String),
+    (this.preferenceIds = preferenceIds);
 }
 
 module.exports = userDetailsDTO;

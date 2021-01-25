@@ -14,6 +14,8 @@ const LoginDTO = require('../dtos/loginDTO.dto');
 const UserDetailsDTO = require('../dtos/userDetailsDTO.dto');
 const AttachmentType = require('../enums/attachmentType.enum');
 const auth = require('../middleware/auth.middleware')
+const { createLocation } = require('../repository/location.repository');
+const {createUserLocation } = require('../repository/userLocation.repository');
 
 /**
  * @description Register new user
@@ -71,22 +73,31 @@ router.post('/users', async (req,res) => {
  */
 router.patch('/users/me',auth, async (req, res) => {
     const userDetailsDTO = req.body;
+    const userId = req.user.id;
     const invalidUserDetailsDTO = hasMissingKey(userDetailsDTO, new UserDetailsDTO());
     if(invalidUserDetailsDTO){
         res.status(400).send("Invalid request body")
+        return;
     }
     try {
         const savedStorageResult = await createStorage(
             userDetailsDTO.base64String,
             AttachmentType.USER
         );
+        const locationMysqlRes = await createLocation(userDetailsDTO.locationDTO);
+        const locationId = locationMysqlRes.insertId;
+        const savedUserLocationResult = await createUserLocation(
+            userId,
+            locationId
+        );
         
         const user = {
             id: req.user.id,
             imageStorageId : savedStorageResult.insertId,
-            gender : userDetailsDTO.gender,
+            gender : null,
             biography: userDetailsDTO.biography,
             lastModifiedDate: toMysqlTimestampString(new Date()),
+            createdDate: toMysqlTimestampString(new Date()),
         }
 
         await updateUserDetails(user);
@@ -95,6 +106,7 @@ router.patch('/users/me',auth, async (req, res) => {
         .status(200)
         .send(`User updated succesfully`);
     } catch (err) {
+        console.log(err);
         res.status(500).send(err);
     }
 })
