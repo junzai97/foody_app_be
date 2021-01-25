@@ -11,13 +11,13 @@ async function findMealSuggestion(userId, preferenceIds, locationDTO) {
     if (!locationDTO) {
       locationDTO = await findOneLocationByUserId(userId);
     }
-    
-    const meats = await searchNearbyMeat(locationDTO);
+
+    const posts = await searchNearbyPost(locationDTO);
     // console.log(meats.map(el => el.meatId));
-    console.log(meats.length," nearby meats");
+    console.log(posts.length," nearby posts");
     const matchedResult = [];
-    for (let index = 0; index < meats.length; index++) {
-      const { distanceInKm, meatId } = meats[index];
+    for (let index = 0; index < posts.length; index++) {
+      const { distanceInKm, meatId } = posts[index];
       const preferences = await findAllMeatPreferences(meatId);
       const isPreferenceMatch = preferences
         .map((preference) => preference.id)
