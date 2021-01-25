@@ -55,12 +55,12 @@ function findOneLocationByMeatId(meatId) {
   return new Promise((resolve, reject) => {
     connection.query(
       `SELECT l.* FROM meat_location as ml
-      left join foodie_location as l on ml.id = l.id
+      left join foodie_location as l on ml.location_id = l.id
       where ml.meat_id = ?`,
       [meatId],
       (error, results, fields) => {
         const result = results[0];
-        console.log(result);
+        // console.log(result);
         error
           ? reject(error)
           : resolve(
@@ -78,7 +78,7 @@ function findOneLocationByMeatId(meatId) {
 
 function searchNearbyMeat(
   locationDTO,
-  nearbyPrecision = NearbyPrecision.in2500m
+  nearbyPrecision = NearbyPrecision.in20000m
 ) {
   const centerGeohash = geohash.encode(
     locationDTO.latitude,

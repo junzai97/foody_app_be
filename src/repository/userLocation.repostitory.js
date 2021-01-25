@@ -9,12 +9,12 @@ function findOneLocationByUserId(userId) {
   return new Promise((resolve, reject) => {
     connection.query(
       `SELECT l.* FROM user_location as ul
-      left join foodie_location as l on ul.id = l.id
+      left join foodie_location as l on ul.location_id = l.id
       where ul.user_id = ?`,
       [userId],
       (error, results, fields) => {
         const result = results[0];
-        console.log(result);
+        // console.log(result);
         error
           ? reject(error)
           : resolve(

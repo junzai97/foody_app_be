@@ -84,7 +84,10 @@ function findAllMeatUserByMeatId(meatId) {
   });
 }
 
-function findAllMeatUserByUserIdAndStatus(userId, status = MeatUserStatus.GOING) {
+function findAllMeatUserByUserIdAndStatus(
+  userId,
+  status = MeatUserStatus.GOING
+) {
   return new Promise((resolve, reject) => {
     connection.query(
       `SELECT * FROM MEAT_USER
@@ -141,10 +144,42 @@ function findOneMeatUser(meatId, userId) {
   });
 }
 
+function findAllMeatUsersByMeatIdAndMeatUserStatus(
+  meatId,
+  meatUserStatus = MeatUserStatus.GOING
+) {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `SELECT mu.*, u.username, s.media_link FROM MEAT_USER as mu 
+      left join user as u on mu.user_id = u.id
+      left join storage as s on u.image_storage_id = s.id
+              WHERE MEAT_ID = ? AND mu.status = ?`,
+      [meatId, meatUserStatus],
+      (error, results, fields) => {
+        error
+          ? reject(error)
+          : resolve(
+              results.map((result) => {
+                return {
+                  userId: result.user_id,
+                  role: result.role,
+                  status: result.status,
+                  username: result.username,
+                  imageUrl: result.media_link,
+                };
+              })
+            );
+      }
+    );
+  });
+  return;
+}
+
 module.exports = {
   createMeatUser,
   updateMeatUserStatus,
   findAllMeatUserByMeatId,
   findAllMeatUserByUserIdAndStatus,
   findOneMeatUser,
+  findAllMeatUsersByMeatIdAndMeatUserStatus,
 };

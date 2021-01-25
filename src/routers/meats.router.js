@@ -18,6 +18,9 @@ const {
   createMeatParticipantService,
   notComingMeatService,
 } = require("../services/meatUser.service");
+const {
+  findAllMeatUsersByMeatIdAndMeatUserStatus,
+} = require("../repository/meatUsers.repostitory");
 
 router.post("/meat", auth, async (req, res) => {
   try {
@@ -105,9 +108,9 @@ router.get("/meat/explore", auth, async (req, res) => {
     const preferenceId = req.query.perferenceId;
     let preferenceIds = [];
     if (Array.isArray(preferenceId)) {
-      preferenceIds = preferenceId;
+      preferenceIds = preferenceId.map(el => parseInt(el));
     } else if (!isNaN(parseInt(preferenceId))) {
-      preferenceIds = [preferenceId];
+      preferenceIds = [parseInt(preferenceId)];
     }
 
     //handle location
@@ -140,6 +143,17 @@ router.get("/meat/:meatId", auth, async (req, res) => {
     const meatId = req.params.meatId;
     const userId = req.user.id;
     const result = await findOneMeatService(meatId, userId);
+    res.status(200).send(result);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/meat/:meatId/meat-users", auth, async (req, res) => {
+  try {
+    const meatId = req.params.meatId;
+    const userId = req.user.id;
+    const result = await findAllMeatUsersByMeatIdAndMeatUserStatus(meatId);
     res.status(200).send(result);
   } catch (err) {
     handleError(res, err);
