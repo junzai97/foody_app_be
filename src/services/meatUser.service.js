@@ -3,7 +3,7 @@ const {
   updateMeatUserStatus,
   findAllMeatUserByMeatId,
   findAllMeatUserByUserIdAndStatus,
-} = require("../repository/meatUsers.repostitory");
+} = require("../repository/meatUsers.repository");
 const MeatUserRole = require("../enums/meatUserRole.enum");
 const MeatUserStatus = require("../enums/meatUserStatus.enum");
 
@@ -52,7 +52,9 @@ async function getMeatAnalyticsService(meatId = 0, userId = 0) {
   const totalParticipants = allMeatUsers.filter(
     (el) => el.status === MeatUserStatus.GOING
   ).length;
-  const foundMeatUser = allMeatUsers.find((el) => el.userId === userId);
+  const foundMeatUser = allMeatUsers
+    .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate)) //sort createdDate descendingly
+    .find((el) => el.userId === userId);
   const role = foundMeatUser ? foundMeatUser.role : null;
   const status = foundMeatUser ? foundMeatUser.status : null;
   return {

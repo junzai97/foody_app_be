@@ -45,9 +45,28 @@ function getUserWithUsername(username){
     })
 }
 
+function getUserLikeUsername(username){
+    return new Promise((resolve, reject) => {
+        connection.query(`
+        SELECT U.id, U.username, S.media_link 
+        FROM user AS U
+        LEFT JOIN storage AS S ON U.image_storage_id = S.id
+        WHERE U.username LIKE ?`,
+        ["%" + username + "%"], (error, results, fields) => {
+            error? reject(error): resolve(results);
+        } )
+    })
+}
+
 function getUserWithId(id){
     return new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM user WHERE id = ?', [id], (error, results, fields) => {
+        connection.query(`
+        SELECT U.*, S.media_link FROM user AS U 
+        LEFT JOIN storage AS S 
+        ON U.image_storage_id = S.id
+        WHERE U.id = ?`, 
+        [id], 
+        (error, results, fields) => {
             const user = results[0];
             error? reject(error): resolve(user);
         })
@@ -74,6 +93,7 @@ module.exports = {
     createUser,
     getUserWithEmail,
     getUserWithUsername,
+    getUserLikeUsername,
     getUserWithId,
     updateUserDetails
 }
