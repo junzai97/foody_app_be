@@ -5,6 +5,7 @@ function MeatDTO(
     maxParticipant,
     startTime,
     endTime,
+    preferenceIds,
     base64String,
     locationDTO,
   ) {
@@ -14,6 +15,7 @@ function MeatDTO(
     this.maxParticipant = maxParticipant;
     this.startTime = startTime;
     this.endTime = endTime;
+    this.preferenceIds = preferenceIds;
     this.base64String = base64String;
     this.locationDTO = locationDTO;
   }

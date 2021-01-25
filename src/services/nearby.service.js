@@ -6,24 +6,28 @@ const LocationDTO = require("../dtos/locationDTO.dto");
 const MeatLocation = require("../entities/firestore/meatLocation.entity");
 
 async function searchNearbyMeat(myLocation, radiusInKm) {
-  const queryDocumentSnapshots = await _searchNearby(
+  const results = await _searchNearby(
     FirestoreType.MEAT,
     myLocation,
     radiusInKm
   );
-  return queryDocumentSnapshots.map((snapshot) => {
-    const doc = snapshot.data();
-    return new MeatLocation(
-      doc.meatId,
-      doc.latitude,
-      doc.longitude,
-      doc.geohash
+  return results.map(({ doc, distanceInKm }) => {
+    const docData = doc.data();
+    const meatLocation = new MeatLocation(
+      docData.meatId,
+      docData.latitude,
+      docData.longitude,
+      docData.geohash
     );
+    return {
+      distanceInKm: distanceInKm,
+      meatId: meatLocation.meatId,
+    };
   });
 }
 
 /**
- * 
+ *
  * @description this is a private function. Don't include it in module.exports
  * @tutorial https://firebase.google.com/docs/firestore/solutions/geoqueries
  */
@@ -63,7 +67,7 @@ async function _searchNearby(firestoreType, myLocation, radiusInKm = 10) {
       const distanceInKm = geofire.distanceBetween([lat, lng], center);
       const distanceInM = distanceInKm * 1000;
       if (distanceInM <= radiusInM) {
-        matchingDocs.push(doc);
+        matchingDocs.push({ doc, distanceInKm });
       }
     }
   }
