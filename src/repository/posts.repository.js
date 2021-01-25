@@ -52,6 +52,26 @@ function readPosts(user_id){
     }) 
 }
 
+function getSuggestionPostsWithPostId(postId){
+    return new Promise ((resolve, reject) => {
+        connection.query(`
+            SELECT followings.username, post.*, storage.media_link, foodie_location.location_name, foodie_location.location_address, foodie_location.latitude, foodie_location.longitude
+            FROM following
+            LEFT JOIN user ON user.id = following.follower_user_id
+            LEFT JOIN user as followings ON followings.id = following.following_user_id
+            LEFT JOIN post ON post.user_id = following.following_user_id
+            LEFT JOIN post_storage ON post_storage.post_id = post.id
+            LEFT JOIN storage ON storage.id = post_storage.id
+            LEFT JOIN post_location ON post_location.post_id = post.id
+            LEFT JOIN foodie_location ON foodie_location.id = post_location.location_id
+            WHERE post.id = ?
+            `, [postId], 
+                (error, results, fields) => {
+            error? reject(error):resolve(results[0]);
+        }) 
+    }) 
+}
+
 
 function readPost(post, user_id){
     return new Promise ((resolve, reject) => {
@@ -129,9 +149,7 @@ function getGridViewPostWithUserId(userId){
             })
         }
     )
-}
-
-
+}    
 
 function getLike(postId, userId){
     return new Promise((resolve, reject)=>{
@@ -166,6 +184,7 @@ module.exports = {
     createPost,
     readPost,
     readPosts,
+    getSuggestionPostsWithPostId,
     updatePost,
     deletePost,
     insertPostImage,

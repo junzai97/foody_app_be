@@ -60,7 +60,6 @@ router.get('/friends', auth, async (req, res) => {
     }
 })
 
-
 /**
  * @description Search users with username
  */
@@ -73,7 +72,6 @@ router.get('/friends/search', auth, async (req,res) => {
         res.status(400).send(err);
     }
 })
-
 
 /**
  * @description Get a user details
