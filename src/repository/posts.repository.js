@@ -35,13 +35,15 @@ function createPost(post){
 function readPosts(user_id){
     return new Promise ((resolve, reject) => {
         connection.query(`
-            SELECT followings.username, post.*, storage.media_link
+            SELECT followings.username, post.*, storage.media_link, foodie_location.location_name, foodie_location.location_address, foodie_location.latitude, foodie_location.longitude
             FROM following
             LEFT JOIN user ON user.id = following.follower_user_id
             LEFT JOIN user as followings ON followings.id = following.following_user_id
             LEFT JOIN post ON post.user_id = following.following_user_id
             LEFT JOIN post_storage ON post_storage.post_id = post.id
             LEFT JOIN storage ON storage.id = post_storage.id
+            LEFT JOIN post_location ON post_location.post_id = post.id
+            LEFT JOIN foodie_location ON foodie_location.id = post_location.location_id
             WHERE user.id = ?
             ORDER BY post.created_date DESC`, [user_id], 
                 (error, results, fields) => {
@@ -125,6 +127,36 @@ function getGridViewPostWithUserId(userId){
             (error, results, field)=> {
                 error? reject(error): resolve(results);
             })
+        }
+    )
+}    
+
+function getLike(postId, userId){
+    return new Promise((resolve, reject)=>{
+        connection.query(`SELECT * FROM post_reaction WHERE post_id = ? AND user_id = ?`,
+        [
+            postId,
+            userId
+        ],(error, results, fields) => {
+            error ? reject(error) : resolve(results);
+        });
+    })
+}
+
+function createLike(postReaction){
+    return new Promise((resolve, reject)=>{
+        connection.query(`
+        INSERT INTO post_reaction VALUES (${createPlaceholderString(6)})`,
+        [
+            null,
+            postReaction.post_id,
+            postReaction.user_id,
+            postReaction.post_reaction,
+            new Date(),
+            new Date()
+        ],(error, results, fields) => {
+            error ? reject(error) : resolve(results);
+        });
     })
 }
 
@@ -136,5 +168,7 @@ module.exports = {
     deletePost,
     insertPostImage,
     getPostCountWithUserId,
-    getGridViewPostWithUserId
+    getGridViewPostWithUserId,
+    createLike,
+    getLike
 }
