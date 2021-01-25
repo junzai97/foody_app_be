@@ -7,7 +7,7 @@ function PostDTO(
     cleanliness,
     taste,
     price,
-
+    locationDTO,
 ){
     this.id = id;
     this.user_id = user_id;
@@ -17,6 +17,7 @@ function PostDTO(
     this.cleanliness = cleanliness;
     this.taste = taste;
     this.price = price;
+    this.locationDTO = locationDTO;
 }
 
 module.exports = PostDTO;

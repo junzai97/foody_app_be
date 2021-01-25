@@ -1,12 +1,15 @@
 const express = require('express');
 const Post = require('../entities/post.entity');
 const PostStorage = require('../entities/post_storage.entity');
-const { createPost, readPosts, updatePost, deletePost, insertPostImage } = require('../repository/posts.repository');
+const { createPost, readPosts, updatePost, deletePost, insertPostImage, createLike, getLike } = require('../repository/posts.repository');
+const { createPostLocation, findOneLocationByPostId } = require('../repository/postLocation.repository');
 const PostDTO = require('../dtos/postDTO.dto');
 const { route } = require('./index.router');
 const { hasMissingKey } = require('../utils/compare.utils');
 const auth = require("../middleware/auth.middleware");
 const { createStorage } = require("../repository/storage.repostitory");
+const LocationDTO = require('../dtos/locationDTO.dto');
+const { createLocation } = require('../repository/location.repostitory');
 const router = express.Router();
 
 //CREATE YOUR REST API UNDER HERE
@@ -14,9 +17,10 @@ const router = express.Router();
 // Create A Post
 router.post('/post', auth, async (req, res) => {
     const postDTO = req.body;
-    if(hasMissingKey(postDTO, new PostDTO())){
+    if (hasMissingKey(postDTO, new PostDTO())) {
         res.status(400).send("Bad request for postDTO");
     }
+    console.log(postDTO);
     try {
         var post = new Post(
             null,
@@ -31,13 +35,16 @@ router.post('/post', auth, async (req, res) => {
         );
         const postResult = await createPost(post);
         const storage = await createStorage(postDTO.images);
-        var post_storage  = new PostStorage(
-            null, 
+        var post_storage = new PostStorage(
+            null,
             postResult.insertId,
             storage.insertId,
         )
-        const result = await insertPostImage(post_storage);
-        res.status(201).send(`Post with id ${result.insertId} had saved successfully`);
+        const imageResult = await insertPostImage(post_storage);
+        const location = await createLocation(postDTO.locationDTO);
+        const locationResult = await createPostLocation(postResult.insertId, location.insertId);
+
+        res.status(201).send(`Post with id ${postResult.insertId} had saved successfully`);
 
     } catch (error) {
         console.log(error);
@@ -49,7 +56,14 @@ router.post('/post', auth, async (req, res) => {
 router.get('/post', auth, async (req, res) => {
     const postDTO = req.body;
     try {
-        var post = await readPosts(req.user.id);
+        var dataArr = await readPosts(req.user.id);
+
+        const post = dataArr.map(el => {
+            return {
+                ...el,
+                locationDTO: new LocationDTO(el.latitude, el.longitude, el.location_name, el.location_address)
+            }
+        });
         res.status(200).send(post);
     } catch (error) {
         console.log(error);
@@ -71,7 +85,7 @@ router.put('/post', async (req, res) => {
             postDTO.price,
         );
         const result = await updatePost(post);
-        
+
         res.status(201).send('Post had updated successfully.');
 
     } catch (error) {
@@ -92,6 +106,35 @@ router.delete('/post', async (req, res) => {
         }`;
         res.status(200).send(JSON.parse(result));
 
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+})
+
+// Get a like from a post
+router.get('/like/:postId/:userId', auth, async (req, res) => {
+    const postId = req.params.postId;
+    const userId = req.params.userId;
+    try {
+        const result = await getLike(postId, userId);
+        if (result.length == 0) {
+            res.status(200).send("fail");
+        } else {
+            res.status(200).send("success");
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+})
+
+// React like to a post
+router.post('/like', auth, async (req, res) => {
+    const likeDTO = req.body;
+    try {
+        const result = await createLike(likeDTO);
+        res.status(201).send("Post had liked successfully.")
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
