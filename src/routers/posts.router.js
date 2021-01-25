@@ -9,7 +9,7 @@ const { hasMissingKey } = require('../utils/compare.utils');
 const auth = require("../middleware/auth.middleware");
 const { createStorage } = require("../repository/storage.repository");
 const LocationDTO = require('../dtos/locationDTO.dto');
-const { createLocation } = require('../repository/location.repostitory');
+const { createLocation } = require('../repository/location.repository');
 const router = express.Router();
 
 //CREATE YOUR REST API UNDER HERE

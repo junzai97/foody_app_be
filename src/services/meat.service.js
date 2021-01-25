@@ -33,17 +33,17 @@ const {
 } = require("../repository/userPreferences.repository");
 const {
   findOneLocationByUserId
-} = require("../repository/userLocation.repostitory")
+} = require("../repository/userLocation.repository")
 const {
   findOneUserLocationByUserId,
 } = require("../services/firestore/userLocation.service");
-const { searchNearbyMeat } = require("../repository/meatLocation.repostitory");
+const { searchNearbyMeat } = require("../repository/meatLocation.repository");
 const isBefore = require("date-fns/isBefore");
 const {
   createMeatLocation,
   updateMeatLocationByMeatId,
   findOneLocationByMeatId,
-} = require("../repository/meatLocation.repostitory");
+} = require("../repository/meatLocation.repository");
 const MeatUserStatus = require("../enums/meatUserStatus.enum");
 
 async function createMeatService(meatDTO, userId) {

@@ -131,6 +131,8 @@ function getGridViewPostWithUserId(userId){
     )
 }    
 
+
+
 function getLike(postId, userId){
     return new Promise((resolve, reject)=>{
         connection.query(`SELECT * FROM post_reaction WHERE post_id = ? AND user_id = ?`,
