@@ -54,7 +54,7 @@ function getFollowingWithUsersId(followerUserId, followingUserId){
 function getAllFollowingUsers(userId){
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT U.id, U.username, S.media_link FROM user AS U 
+            `SELECT U.*, S.media_link FROM user AS U 
             INNER JOIN following AS F ON U.id = F.following_user_id
             LEFT JOIN storage AS S ON U.image_storage_id = S.id
             WHERE F.follower_user_id = ?`, 
