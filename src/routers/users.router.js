@@ -16,6 +16,8 @@ const AttachmentType = require('../enums/attachmentType.enum');
 const auth = require('../middleware/auth.middleware')
 const { createLocation } = require('../repository/location.repository');
 const {createUserLocation } = require('../repository/userLocation.repository');
+const { createFollowing } = require('../repository/following.repository');
+const Following = require('../entities/following.entity');
 
 /**
  * @description Register new user
@@ -57,11 +59,19 @@ router.post('/users', async (req,res) => {
         const salt = await bcrypt.genSalt(5);
         user.password = await bcrypt.hash(user.password, salt);
         const result = await createUser(user);
+        const myUserId = result.insertId;
+        const mysqlFollowingResponse = await createFollowing(new Following(
+            null,
+            myUserId,
+            myUserId,
+            toMysqlTimestampString(new Date())
+        ))
 
         const token = jwt.sign({id: result.insertId.toString()}, process.env.JWT_SECRET, {expiresIn: 86400})
         res.status(201).send({auth: true, token});
 
     } catch (err) {
+        console.log(err);
         res.status(500).send(err);
     }
     
