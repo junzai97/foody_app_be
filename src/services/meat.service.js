@@ -1,20 +1,15 @@
 const { toMysqlTimestampString } = require("../utils/mysql.utils");
 const {
-  createMeatLocation,
-  updateMeatLocation,
-  findOneMeatLocationByMeatId,
-} = require("./firestore/meatLocation.service");
-const {
   createMeat,
   updateMeat,
   cancelMeat,
   findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter,
   findOneMeat,
-} = require("../repository/meats.repostitory");
+} = require("../repository/meats.repository");
 const {
   createStorage,
   findOneStorage,
-} = require("../repository/storage.repostitory");
+} = require("../repository/storage.repository");
 const Meat = require("../entities/meat.entity");
 const MeatStatus = require("../enums/meatStatus.enum");
 const AttachmentType = require("../enums/attachmentType.enum");
@@ -32,15 +27,24 @@ const {
 
 const {
   findAllMeatPreferences,
-} = require("../repository/meatPreferences.repostitory");
+} = require("../repository/meatPreferences.repository");
 const {
   findAllUserPreferences,
-} = require("../repository/userPreferences.repostitory");
+} = require("../repository/userPreferences.repository");
+const {
+  findOneLocationByUserId
+} = require("../repository/userLocation.repository")
 const {
   findOneUserLocationByUserId,
 } = require("../services/firestore/userLocation.service");
-const { searchNearbyMeat } = require("./nearby.service");
+const { searchNearbyMeat } = require("../repository/meatLocation.repository");
 const isBefore = require("date-fns/isBefore");
+const {
+  createMeatLocation,
+  updateMeatLocationByMeatId,
+  findOneLocationByMeatId,
+} = require("../repository/meatLocation.repository");
+const MeatUserStatus = require("../enums/meatUserStatus.enum");
 
 async function createMeatService(meatDTO, userId) {
   const savedStorageResult = await createStorage(
@@ -65,7 +69,10 @@ async function createMeatService(meatDTO, userId) {
     meatId,
     meatDTO.preferenceIds
   );
-  const firestoreData = await createMeatLocation(meatId, meatDTO.locationDTO);
+  const locationMysqlRes = await createLocation(meatDTO.locationDTO);
+  const locationId = locationMysqlRes.insertId;
+  const meatLocationMysqlRes = await createMeatLocation(meatId, locationId);
+  const meatLocationId = meatLocationMysqlRes.insertId;
   const meatUserMysqlResponse = await createMeatOrganiserService(
     meatId,
     userId
@@ -102,10 +109,14 @@ async function updateMeatService(meatDTO) {
   await updateMeatPreferencesService(originalMeat.id, meatDTO.preferenceIds);
   if (meatDTO.locationDTO) {
     // only update locationDTO if exist
-    const updatedFirestoreData = await updateMeatLocation(
-      meatDTO.id,
-      meatDTO.locationDTO
-    );
+    const locationMysqlRes = await createLocation(meatDTO.locationDTO);
+    const locationId = locationMysqlRes.insertId;
+    const meatLocationMysqlRes = await updateMeatLocationByMeatId(meatDTO.id, locationId);
+    if (meatLocationMysqlRes.affectedRows < 1) {
+      throw new BadRequestException(
+        "no meatLocation is updated. Is meatLocation exist?"
+      );
+    }
   }
   return mysqlResponse;
 }
@@ -124,10 +135,11 @@ async function findExploreMeats(userId, preferenceIds, locationDTO) {
     preferenceIds = preferences.map((preference) => preference.id);
   }
   if (!locationDTO) {
-    const { data } = await findOneUserLocationByUserId(userId);
-    locationDTO = new LocationDTO(data.latitude, data.longitude);
+    locationDTO = await findOneLocationByUserId(userId);
   }
   const meats = await searchNearbyMeat(locationDTO);
+  // console.log(meats.map(el => el.meatId));
+  console.log(meats.length," nearby meats");
   const matchedResult = [];
   for (let index = 0; index < meats.length; index++) {
     const { distanceInKm, meatId } = meats[index];
@@ -135,21 +147,31 @@ async function findExploreMeats(userId, preferenceIds, locationDTO) {
     const isPreferenceMatch = preferences
       .map((preference) => preference.id)
       .some((value) => preferenceIds.includes(value));
+      // console.log(preferenceIds);
     if (!isPreferenceMatch) {
+      console.log(meatId, " oops, preference not matched")
       continue;
     }
     const meat = await findOneMeat(meatId);
     const isOngoing = meat.status === MeatStatus.ONGOING;
     if (!isOngoing) {
+      console.log(meatId, " oops, it's not ongoing")
       continue;
     }
     const isEnded = isBefore(new Date(meat.endTime), new Date());
     if (isEnded) {
+      console.log(meatId, " oops, it's ended")
       continue;
     }
-    const { totalParticipants } = await getMeatAnalyticsService(meatId);
+    const { totalParticipants, status } = await getMeatAnalyticsService(meatId);
     const hasVacant = totalParticipants < meat.maxParticipant;
     if (!hasVacant) {
+      console.log(meatId, " oops, it's reach max participant")
+      continue;
+    }
+    const hasJoined = status !== null
+    if (hasJoined) {
+      console.log(meatId, " oops, you ady joined")
       continue;
     }
     const storage = await findOneStorage(meat.imageStorageId);
@@ -176,6 +198,7 @@ async function findUpcomingMeats(userId) {
     goingMeatIds,
     MeatStatus.ONGOING
   );
+  console.log(meats);
   return Promise.all(
     meats.map(async (meat) => {
       const storage = await findOneStorage(meat.imageStorageId);
@@ -198,7 +221,7 @@ async function findUpcomingMeats(userId) {
 async function findOneMeatService(meatId, userId) {
   const meat = await findOneMeat(meatId);
   const storage = await findOneStorage(meat.imageStorageId);
-  const { data } = await findOneMeatLocationByMeatId(meatId);
+  const locationDTO = await findOneLocationByMeatId(meatId);
   const { totalParticipants, role, status } = await getMeatAnalyticsService(
     meatId,
     userId
@@ -212,11 +235,11 @@ async function findOneMeatService(meatId, userId) {
     maxParticipant: meat.maxParticipant,
     startTime: meat.startTime,
     endTime: meat.endTime,
-    status: meat.status,
-    locationDTO: new LocationDTO(data.latitude, data.longitude),
+    meatStatus: meat.status,
+    locationDTO: locationDTO,
     totalParticipants: totalParticipants,
     role: role,
-    status: status,
+    userStatus: status,
     preferences: preferences,
     createdDate: meat.createdDate,
     lastModifiedDate: meat.lastModifiedDate,

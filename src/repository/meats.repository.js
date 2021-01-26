@@ -98,10 +98,11 @@ function cancelMeat(meatId) {
 }
 
 function findAllMeatsInMeatIdsAndStatusIsAndEndTimeAfter(
-  meatIds,
+  meatIds = [],
   status = MeatStatus.ONGOING,
   beforeEndTime = toMysqlTimestampString(new Date())
 ) {
+  if (Array.isArray(meatIds) && meatIds.length === 0) return [];
   return new Promise((resolve, reject) => {
     connection.query(
       `SELECT * FROM MEAT 
